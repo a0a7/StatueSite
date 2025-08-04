@@ -183,9 +183,9 @@
         
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.02,    // strength
-            10,    // radius  
-            1    // threshold
+            0.075,    // strength
+            45,    // radius  
+            10    // threshold
         );
         composer.addPass(bloomPass);
 
