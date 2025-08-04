@@ -17,6 +17,8 @@
     let accumulatedAngle = 0;
     let mouseX = 0;
     let mouseY = 0;
+    let vignetteX = 0;
+    let vignetteY = 0;
     let baseCameraPosition = { x: 3.30, y: -0.45, z: 4.66 };
     let baseCameraTarget = { x: -0.12, y: 0.88, z: 1.16 };
     let composer;
@@ -183,7 +185,7 @@
         
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.075,    // strength
+            0.045,    // strength
             45,    // radius  
             10    // threshold
         );
@@ -200,6 +202,10 @@
                 // Normalize mouse position to -1 to 1 range
                 mouseX = (event.clientX / window.innerWidth) * 2 - 1;
                 mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                // Update vignette position with smoothing
+                vignetteX = (event.clientX / window.innerWidth - 0.5) * 20; // Range: -10 to 10
+                vignetteY = (event.clientY / window.innerHeight - 0.5) * 20; // Range: -10 to 10
             }
         });
         
@@ -234,7 +240,6 @@
             for (let y = 0; y < size; y++) {
                 for (let x = 0; x < size; x++) {
                     const d = 1.0 - vector.set(x, y, z).subScalar(size / 2).divideScalar(size).length();
-                    // Make fog much brighter for low exposure visibility
                     data[i] = (180 + 180 * perlin.noise(x * scale / 1.5, y * scale, z * scale / 1.5)) * d * d;
                     i++;
                 }
@@ -248,7 +253,6 @@
         texture.unpackAlignment = 1;
         texture.needsUpdate = true;
 
-        // Simplified volumetric fog shaders
         const vertexShader = /* glsl */`
             in vec3 position;
 
@@ -405,7 +409,7 @@
 
     function animate() {
         const deltaTime = 1 / 60; // Assume 60 FPS for consistent speed
-        const baseSpeed = 0.5; // Base rotation speed
+        const baseSpeed = 0.25; // Base rotation speed
         
         // Normalize angle to 0-2π range
         const normalizedAngle = accumulatedAngle % (Math.PI * 2);
@@ -425,12 +429,12 @@
             volumetricMesh.material.uniforms.cameraPos.value.copy(camera.position);
             volumetricMesh.material.uniforms.spotLightPos.value.copy(spotLight.position);
             volumetricMesh.material.uniforms.frame.value++;
-            volumetricMesh.rotation.y = performance.now() * 0.0001; // Very slow rotation
+            volumetricMesh.rotation.y = performance.now() * 0.00005; // Very slow rotation
         }
 
         // Apply subtle mouse-based camera movement (only when controls are disabled)
         if (!controlsEnabled) {
-            const parallaxStrength = 0.1; // Adjust this for more/less responsiveness
+            const parallaxStrength = 0.35; // Adjust this for more/less responsiveness
             camera.position.x = baseCameraPosition.x + mouseX * parallaxStrength;
             camera.position.y = baseCameraPosition.y + mouseY * parallaxStrength * 0.5;
             
@@ -440,7 +444,7 @@
         
         controls.update();
 
-        // lightHelper.update(); // Commented out since helper is disabled
+        // lightHelper.update();
 
         composer.render();
     }
@@ -450,6 +454,12 @@
 
 <div class="relative w-full h-screen overflow-hidden bg-gray-900">
     <div bind:this={container} class="w-full h-full"></div>
+    
+    <!-- Dynamic vignette overlay -->
+    <div 
+        class="vignette-overlay"
+        style="--vignette-x: {vignetteX}px; --vignette-y: {vignetteY}px;"
+    ></div>
 </div>
 
 <style>
@@ -457,5 +467,24 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+    }
+    
+    .vignette-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        background: radial-gradient(
+            ellipse 60% 50% at calc(50% + var(--vignette-x, 0px)) calc(50% + var(--vignette-y, 0px)),
+            transparent 20%,
+            rgba(0, 0, 0, 0.1) 40%,
+            rgba(0, 0, 0, 0.3) 70%,
+            rgba(0, 0, 0, 0.6) 100%
+        );
+        backdrop-filter: blur(0.5px);
+        transition: all 0.1s ease-out;
+        z-index: 10;
     }
 </style>
