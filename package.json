@@ -26,5 +26,8 @@
 		"onlyBuiltDependencies": [
 			"esbuild"
 		]
+	},
+	"dependencies": {
+		"three": "^0.179.1"
 	}
 }

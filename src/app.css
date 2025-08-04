@@ -1,1 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss" source(none);
+
+@source "../src/**/*.{html,js,ts,svelte}";
+@source not "**/*.{hdr,ply}";
