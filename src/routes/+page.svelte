@@ -551,6 +551,12 @@
 <div class="relative w-full h-screen overflow-hidden bg-gray-900">
     <div bind:this={container} class="w-full h-full"></div>
     
+    <div class="absolute top-0 left-0 z-30 h-full w-[80%] md:w-[50%] lg:w-[40%] p-6 md:p-8 pointer-events-auto">
+        <div class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8">
+            <!-- Content goes here -->
+        </div>
+    </div>
+    
     <div 
         class="vignette-overlay"
         style="--vignette-x: {vignetteX}px; --vignette-y: {vignetteY}px;"
