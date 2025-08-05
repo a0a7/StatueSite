@@ -1,9 +1,7 @@
-<script>
+<script lang="ts">
     import { onMount } from 'svelte';
     import * as THREE from 'three';
-    import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
     import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-    import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
     import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
     import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
     import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -11,9 +9,9 @@
     import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise.js';
 
     let container = $state();
-    let renderer, scene, camera;
-    let spotLight, lightHelper;
-    let controls;
+    let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera;
+    let spotLight: THREE.Object3D<THREE.Object3DEventMap>, lightHelper;
+    let controls: OrbitControls;
     let accumulatedAngle = 0;
     let mouseX = 0;
     let mouseY = 0;
@@ -21,10 +19,10 @@
     let vignetteY = $state(0);
     let baseCameraPosition = { x: 3.30, y: -0.45, z: 4.66 };
     let baseCameraTarget = { x: -0.12, y: 0.88, z: 1.16 };
-    let composer;
-    let volumetricMesh;
+    let composer: EffectComposer;
+    let volumetricMesh: THREE.Mesh<THREE.BoxGeometry, THREE.RawShaderMaterial, THREE.Object3DEventMap>;
     let skyMesh;
-    let stars;
+    let stars: THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.PointsMaterial, THREE.Object3DEventMap>;
     let controlsEnabled = false;
 
     onMount(() => {
@@ -46,7 +44,7 @@
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setAnimationLoop(animate);
-        container.appendChild(renderer.domElement);
+        (container as HTMLElement).appendChild(renderer.domElement);
 
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -76,7 +74,6 @@
         controls.enableZoom = false;
         
         controls.update();
-        // Load disturb texture
         const loader = new THREE.TextureLoader();
         const disturbTexture = loader.load('/textures/disturb.jpg');
         disturbTexture.minFilter = THREE.LinearFilter;  
@@ -84,21 +81,20 @@
         disturbTexture.generateMipmaps = false;
         disturbTexture.colorSpace = THREE.SRGBColorSpace;
 
-        // Spotlight
         spotLight = new THREE.SpotLight(0xffeeee, 3000);
-        spotLight.position.set(2.5, 5, 2.5);
-        spotLight.angle = Math.PI / 6;
-        spotLight.penumbra = 1;
-        spotLight.decay = 1.8;
-        spotLight.distance = 0;
+        spotLight.position.set(2.5, 5, 2.5); // @ts-ignore: exists
+        spotLight.angle = Math.PI / 6; // @ts-ignore: exists
+        spotLight.penumbra = 1; // @ts-ignore: exists
+        spotLight.decay = 1.8; // @ts-ignore: exists
+        spotLight.distance = 0; // @ts-ignore: exists
         spotLight.map = disturbTexture;
 
-        spotLight.castShadow = true;
-        spotLight.shadow.mapSize.width = 512;
-        spotLight.shadow.mapSize.height = 512;
-        spotLight.shadow.camera.near = 1;
-        spotLight.shadow.camera.far = 15;
-        spotLight.shadow.focus = 1;
+        spotLight.castShadow = true; // @ts-ignore: exists
+        spotLight.shadow.mapSize.width = 512; // @ts-ignore: exists
+        spotLight.shadow.mapSize.height = 512; // @ts-ignore: exists
+        spotLight.shadow.camera.near = 1; // @ts-ignore: exists
+        spotLight.shadow.camera.far = 15; // @ts-ignore: exists
+        spotLight.shadow.focus = 1; 
         scene.add(spotLight);
 
         // Add ambient light to help illuminate fog from all angles
@@ -138,41 +134,23 @@
             controlsEnabled = false;
         }
         
-        if (modelParam === 'lucy') {
-            // Load PLY model (Lucy)
-            new PLYLoader().load('/models/Lucy100k.ply', function (geometry) {
-                geometry.scale(0.0024, 0.0024, 0.0024);
-                geometry.computeVertexNormals();
-
-                const material = new THREE.MeshLambertMaterial();
-
-                const mesh = new THREE.Mesh(geometry, material);
-                mesh.rotation.y = -Math.PI / 2;
-                mesh.position.y = 0.8;
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                scene.add(mesh);
+        new GLTFLoader().load('/models/angel-opt.glb', function (gltf) {
+            const model = gltf.scene;
+            
+            // Scale and position the model
+            model.scale.set(0.5, 0.5, 0.5);
+            model.position.y = -1;
+            
+            // Enable shadows for all meshes in the group
+            model.traverse(function (child) { // @ts-ignore: exists
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
             });
-        } else {
-            // Load GLB model (Angel - default)
-            new GLTFLoader().load('/models/angel-opt.glb', function (gltf) {
-                const model = gltf.scene;
-                
-                // Scale and position the model
-                model.scale.set(0.5, 0.5, 0.5);
-                model.position.y = -1;
-                
-                // Enable shadows for all meshes in the group
-                model.traverse(function (child) {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
-                
-                scene.add(model);
-            });
-        }
+            
+            scene.add(model);
+        });
 
         // Set up post-processing for bloom effects
         composer = new EffectComposer(renderer);
@@ -217,8 +195,8 @@
         });
     }
 
-    function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
+    function onWindowResize() { // @ts-ignore: exists
+        camera.aspect = window.innerWidth / window.innerHeight; // @ts-ignore: exists
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         composer.setSize(window.innerWidth, window.innerHeight);
