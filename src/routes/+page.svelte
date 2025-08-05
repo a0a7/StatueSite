@@ -24,6 +24,9 @@
     let skyMesh;
     let stars: THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.PointsMaterial, THREE.Object3DEventMap>;
     let controlsEnabled = false;
+    let isMobile = false;
+    let initialOrientation = { beta: 0, gamma: 0 };
+    let hasOrientationPermission = false;
 
     onMount(() => {
         init();
@@ -168,12 +171,24 @@
 
         createVolumetricFog();
 
+        // Detect if device is mobile
+        isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Request device orientation permission for iOS 13+
+        if (isMobile && typeof DeviceOrientationEvent !== 'undefined' && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+            // For iOS 13+ devices, we need to request permission
+            // This will be triggered by user interaction later
+        } else if (isMobile) {
+            // For other mobile devices, set up orientation listener immediately
+            setupOrientationListener();
+        }
+
         // Window resize handler
         window.addEventListener('resize', onWindowResize);
         
         // Mouse movement handler for subtle camera movement (only when controls are disabled)
         window.addEventListener('mousemove', (event) => {
-            if (!controlsEnabled) {
+            if (!controlsEnabled && !isMobile) {
                 // Normalize mouse position to -1 to 1 range
                 mouseX = (event.clientX / window.innerWidth) * 2 - 1;
                 mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -184,6 +199,21 @@
             }
         });
         
+        // Touch handler for mobile to request orientation permission
+        window.addEventListener('touchstart', async (event) => {
+            if (isMobile && !hasOrientationPermission && typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+                try {
+                    const permission = await (DeviceOrientationEvent as any).requestPermission();
+                    if (permission === 'granted') {
+                        hasOrientationPermission = true;
+                        setupOrientationListener();
+                    }
+                } catch (error) {
+                    console.log('Orientation permission denied');
+                }
+            }
+        }, { once: true });
+        
         // Camera position logger (press 'C' key)
         window.addEventListener('keydown', (event) => {
             if (event.key === 'c' || event.key === 'C') {
@@ -191,6 +221,37 @@
                 console.log(`camera.position.set(${camera.position.x.toFixed(2)}, ${camera.position.y.toFixed(2)}, ${camera.position.z.toFixed(2)});`);
                 console.log(`controls.target.set(${controls.target.x.toFixed(2)}, ${controls.target.y.toFixed(2)}, ${controls.target.z.toFixed(2)});`);
                 console.log('======================');
+            }
+        });
+    }
+
+    function setupOrientationListener() {
+        let isCalibrated = false;
+        
+        window.addEventListener('deviceorientation', (event) => {
+            if (!controlsEnabled && isMobile) {
+                // Calibrate on first reading
+                if (!isCalibrated && event.beta !== null && event.gamma !== null) {
+                    initialOrientation.beta = event.beta;
+                    initialOrientation.gamma = event.gamma;
+                    isCalibrated = true;
+                    return;
+                }
+                
+                if (event.beta !== null && event.gamma !== null && isCalibrated) {
+                    // Calculate relative rotation from initial position
+                    const deltaBeta = event.beta - initialOrientation.beta;  // Forward/backward tilt
+                    const deltaGamma = event.gamma - initialOrientation.gamma; // Left/right tilt
+                    
+                    // Convert to normalized coordinates (-1 to 1)
+                    // Limit the range to prevent extreme movements
+                    mouseX = Math.max(-1, Math.min(1, deltaGamma / 30)); // 30 degrees = full range
+                    mouseY = Math.max(-1, Math.min(1, deltaBeta / 30));  // 30 degrees = full range
+                    
+                    // Update vignette position
+                    vignetteX = mouseX * 10;
+                    vignetteY = mouseY * 10;
+                }
             }
         });
     }
