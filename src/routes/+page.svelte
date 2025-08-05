@@ -7,6 +7,10 @@
     import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
     import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
     import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise.js';
+    import {
+        fade,
+    } from 'svelte/transition';
+    import { cubicOut } from 'svelte/easing';
 
     interface Project {
         title: string;
@@ -48,8 +52,8 @@
     let coreSceneLoaded = $state(false);
     let modelLoaded = $state(false);
     let effectsLoaded = $state(false);
-    let loadingProgress = $state(0);
-    let loadingText = $state('Initializing...');
+    let showSplash = $state(true);
+    let sceneReady = $state(false);
 
     onMount(() => {
         initCoreScene();
@@ -66,34 +70,18 @@
 
     async function initCoreScene() {
         try {
-            loadingText = 'Setting up renderer...';
-            loadingProgress = 10;
-            
             // Initialize core scene components first
             await setupRenderer();
-            loadingProgress = 20;
-            
-            loadingText = 'Creating scene...';
             await setupScene();
-            loadingProgress = 30;
-            
-            loadingText = 'Setting up camera...';
             await setupCamera();
-            loadingProgress = 40;
-            
-            loadingText = 'Adding lighting...';
             await setupLighting();
-            loadingProgress = 50;
             
             coreSceneLoaded = true;
             
             // Start the animation loop early so user sees something
             renderer.setAnimationLoop(animate);
             
-            loadingText = 'Loading statue...';
             await loadModel();
-            loadingProgress = 70;
-            
             modelLoaded = true;
             
             // Load non-essential effects in the background
@@ -101,7 +89,6 @@
             
         } catch (error) {
             console.error('Error initializing scene:', error);
-            loadingText = 'Error loading scene';
         }
     }
 
@@ -213,8 +200,7 @@
                 resolve();
             }, 
             (progress) => {
-                const percentComplete = (progress.loaded / progress.total) * 20; // 20% of total progress
-                loadingProgress = 50 + percentComplete;
+                // Optional: Handle progress if needed
             },
             (error) => {
                 console.error('Error loading model:', error);
@@ -225,35 +211,32 @@
 
     async function loadEffects() {
         try {
-            loadingText = 'Loading visual effects...';
-            loadingProgress = 75;
-            
             // Load sky and stars
             await createSkyAndStars();
-            loadingProgress = 85;
             
             // Setup post-processing
             await setupPostProcessing();
-            loadingProgress = 95;
             
             // Create volumetric fog last (most expensive)
             await createVolumetricFog();
-            loadingProgress = 100;
             
             effectsLoaded = true;
-            loadingText = 'Complete!';
+            sceneReady = true;
             
-            // Hide loading screen after a brief delay
+            // Hide splash screen with a fade transition
             setTimeout(() => {
-                loadingProgress = -1; // Hide loading screen
+                showSplash = false;
                 setupEventListeners(); // Setup event listeners after everything is loaded
-            }, 500);
+            }, 300);
             
         } catch (error) {
             console.error('Error loading effects:', error);
             effectsLoaded = true; // Continue anyway
-            loadingProgress = -1;
-            setupEventListeners();
+            sceneReady = true;
+            setTimeout(() => {
+                showSplash = false;
+                setupEventListeners();
+            }, 300);
         }
     }
 
@@ -756,20 +739,8 @@
 <div class="relative w-full h-screen overflow-hidden bg-gray-900">
     <div bind:this={container} class="w-full h-full"></div>
     
-    <!-- Loading Screen -->
-    {#if loadingProgress >= 0}
-        <div class="absolute inset-0 bg-black bg-opacity-95 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div class="text-center text-white">
-                <div class="mb-4">
-                    <div class="w-64 h-1 bg-black rounded-full overflow-hidden">
-                        <div 
-                            class="h-full bg-white transition-all duration-300 ease-out"
-                            style="width: {loadingProgress}%"
-                        ></div>
-                    </div>
-                </div>
-                <p class="text-xs text-gray-500 mt-2">{loadingProgress}%</p>
-            </div>
+    {#if showSplash}
+        <div transition:fade="{{ duration: 175, delay: 0, easing: cubicOut }}" class="splash-screen absolute inset-0 z-25 flex items-center w-full h-full bg-black justify-center">
         </div>
     {/if}
     
@@ -841,5 +812,9 @@
         backdrop-filter: blur(0.5px);
         transition: all 0.1s ease-out;
         z-index: 10;
+    }
+
+    .splash-screen {
+        transition: opacity 0.5s ease-in-out;
     }
 </style>
