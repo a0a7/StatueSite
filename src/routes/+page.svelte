@@ -8,6 +8,19 @@
     import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
     import { ImprovedNoise } from 'three/examples/jsm/math/ImprovedNoise.js';
 
+    interface Project {
+        title: string;
+        status: string;
+        technologies: string;
+        description: string;
+    }
+
+    interface PageData {
+        projects: Project[];
+    }
+
+    let { data }: { data: PageData } = $props();
+
     let container = $state();
     let renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera;
     let spotLight: THREE.Object3D<THREE.Object3DEventMap>, lightHelper;
@@ -27,6 +40,9 @@
     let isMobile = false;
     let initialOrientation = { beta: 0, gamma: 0 };
     let hasOrientationPermission = false;
+    let scrollContainer = $state();
+    let scrollAngle = $state(0); // Camera rotation angle based on scroll
+    let targetScrollAngle = $state(0); // Target angle for smooth interpolation
 
     onMount(() => {
         init();
@@ -254,6 +270,20 @@
                 }
             }
         });
+    }
+
+    function handleScroll(event) {
+        if (!scrollContainer) return;
+        
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+        const scrollableHeight = scrollHeight - clientHeight;
+        
+        if (scrollableHeight > 0) {
+            const scrollPercentage = scrollTop / scrollableHeight;
+            
+            // Convert scroll to camera rotation (0 to 2π for full circle) - negative for opposite direction
+            targetScrollAngle = -scrollPercentage * Math.PI * 2;
+        }
     }
 
     function onWindowResize() { // @ts-ignore: exists
@@ -531,13 +561,73 @@
             stars.rotation.y = time;
         }
 
+        // Smooth interpolation for scroll angle
+        const lerpFactor = 0.1; // Adjust for smoother/faster transitions
+        scrollAngle = scrollAngle + (targetScrollAngle - scrollAngle) * lerpFactor;
+
         if (!controlsEnabled) {
-            const parallaxStrength = 0.5; 
-            camera.position.x = baseCameraPosition.x + mouseX * parallaxStrength;
-            camera.position.y = baseCameraPosition.y + mouseY * parallaxStrength * 0.5;
+            // Define the center point to orbit around (statue position at origin)
+            const orbitCenter = { x: 0, y: 0, z: 0 }; // Statue is at 0,0,0
             
-            controls.target.x = baseCameraTarget.x + mouseX * parallaxStrength * 0.5;
-            controls.target.y = baseCameraTarget.y + mouseY * parallaxStrength * 0.3;
+            // Calculate the initial offset from orbit center to starting camera position
+            const initialOffset = {
+                x: baseCameraPosition.x - orbitCenter.x,
+                y: baseCameraPosition.y - orbitCenter.y,
+                z: baseCameraPosition.z - orbitCenter.z
+            };
+            
+            // Calculate radius from the initial position
+            const radius = Math.sqrt(initialOffset.x * initialOffset.x + initialOffset.z * initialOffset.z);
+            
+            // Calculate the initial angle from the starting position
+            const initialAngle = Math.atan2(initialOffset.z, initialOffset.x);
+            
+            // Apply scroll rotation on top of initial angle
+            const currentAngle = initialAngle + scrollAngle;
+            
+            // Calculate scroll-based camera position (orbiting around the statue)
+            const baseScrollX = orbitCenter.x + Math.cos(currentAngle) * radius;
+            const baseScrollZ = orbitCenter.z + Math.sin(currentAngle) * radius;
+            
+            // Calculate scroll progress (0 to 1) for vertical movement and target adjustment
+            const scrollProgress = Math.abs(scrollAngle) / (Math.PI * 2); // 0 to 1 for full rotation
+            
+            // Gradually move camera upward as you scroll
+            const heightOffset = scrollProgress * 4.0; // Move up by 2 units at full scroll
+            
+            // Calculate the target offset from orbit center to original target
+            const targetOffset = {
+                x: baseCameraTarget.x - orbitCenter.x,
+                y: baseCameraTarget.y - orbitCenter.y,
+                z: baseCameraTarget.z - orbitCenter.z
+            };
+            
+            // Calculate target radius (distance from statue to original target)
+            const targetRadius = Math.sqrt(targetOffset.x * targetOffset.x + targetOffset.z * targetOffset.z);
+            
+            // Calculate the initial target angle
+            const initialTargetAngle = Math.atan2(targetOffset.z, targetOffset.x);
+            
+            // Apply scroll rotation to target as well
+            const currentTargetAngle = initialTargetAngle + scrollAngle;
+            
+            // Calculate scroll-based target position (orbiting around the statue)
+            const baseScrollTargetX = orbitCenter.x + Math.cos(currentTargetAngle) * targetRadius;
+            const baseScrollTargetZ = orbitCenter.z + Math.sin(currentTargetAngle) * targetRadius;
+            
+            // Gradually lower the target Y position as you scroll to look more downward
+            const targetHeightOffset = -scrollProgress * -0.75; // Lower target by 0.8 units at full scroll
+            
+            // Apply mouse parallax on top of scroll position
+            const parallaxStrength = 0.5; 
+            camera.position.x = baseScrollX + mouseX * parallaxStrength;
+            camera.position.y = baseCameraPosition.y + heightOffset + mouseY * parallaxStrength * 0.5;
+            camera.position.z = baseScrollZ + mouseY * parallaxStrength * 0.3;
+            
+            // Apply parallax to target as well to maintain relationship
+            controls.target.x = baseScrollTargetX + mouseX * parallaxStrength * 0.5;
+            controls.target.y = baseCameraTarget.y + targetHeightOffset + mouseY * parallaxStrength * 0.3;
+            controls.target.z = baseScrollTargetZ;
         }
         
         controls.update();
@@ -552,8 +642,25 @@
     <div bind:this={container} class="w-full h-full"></div>
     
     <div class="absolute top-0 left-0 z-30 h-full w-[80%] md:w-[50%] lg:w-[40%] p-6 md:p-8 pointer-events-auto">
-        <div class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8">
-            <!-- Content goes here -->
+        <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
+            <div class="space-y-8">
+                {#each data.projects as project}
+                    <div class="relative pl-5">
+                        <div class="transform translate-y-[2px] absolute left-0 top-0 h-full">
+                            <div class="absolute left-0 top-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
+                            <div class="absolute left-0 bottom-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
+                            <div class="absolute left-[-2.5px] top-1/2 transform -translate-y-1/2   w-2 h-2 bg-white opacity-60 rotate-45 rounded-[1px]"></div>
+                        </div>
+                        <h2 class="text-sm md:text-base font-bold text-white uppercase leading-5 tracking-narrow">{project.title}</h2>
+                        <p class="text-gray-300 leading-relaxed">{project.description}</p>
+                        <div class="flex items-center gap-4 text-sm text-gray-400">
+                            <span>{project.technologies}</span>
+                            <span>◆</span>
+                            <span>2025</span>
+                        </div>
+                    </div>
+                {/each}
+            </div>
         </div>
     </div>
     
@@ -568,6 +675,21 @@
         margin: 0;
         padding: 0;
         overflow: hidden;
+    }
+    
+    .custom-scrollbar {
+        /* Hide default scrollbar */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+        display: none; /* WebKit */
+    }
+    
+    /* Custom scrollbar on the left */
+    .custom-scrollbar {
+        position: relative;
     }
     
     .vignette-overlay {

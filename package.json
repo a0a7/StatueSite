@@ -29,6 +29,8 @@
 		]
 	},
 	"dependencies": {
+		"@types/marked": "^6.0.0",
+		"marked": "^16.1.2",
 		"three": "^0.179.1"
 	}
 }
