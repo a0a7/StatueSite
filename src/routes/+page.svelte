@@ -43,9 +43,16 @@
     let scrollContainer = $state();
     let scrollAngle = $state(0); // Camera rotation angle based on scroll
     let targetScrollAngle = $state(0); // Target angle for smooth interpolation
+    
+    // Loading states for progressive rendering
+    let coreSceneLoaded = $state(false);
+    let modelLoaded = $state(false);
+    let effectsLoaded = $state(false);
+    let loadingProgress = $state(0);
+    let loadingText = $state('Initializing...');
 
     onMount(() => {
-        init();
+        initCoreScene();
         return () => {
             // Cleanup
             if (renderer) {
@@ -57,136 +64,220 @@
         };
     });
 
-    function init() {
-        // Renderer setup
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setAnimationLoop(animate);
-        (container as HTMLElement).appendChild(renderer.domElement);
-
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 0.035;
-
-        // Scene
-        scene = new THREE.Scene();
-        
-        // Create starfield and gradient sky
-        createSkyAndStars();
-
-        // Camera
-        camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 180);
-
-        // Controls
-        controls = new OrbitControls(camera, renderer.domElement);
-        controls.minDistance = 2;
-        controls.maxDistance = 10;
-        controls.maxPolarAngle = Math.PI * 0.8;  // Allow looking more upward (about 144 degrees)
-        camera.position.set(3.30, -0.45, 4.66);
-        controls.target.set(-0.12, 0.88, 1.16);
-        
-        // Disable all mouse interactions
-        controls.enableRotate = false;
-        controls.enablePan = false;
-        controls.enableZoom = false;
-        
-        controls.update();
-        const loader = new THREE.TextureLoader();
-        const disturbTexture = loader.load('/textures/disturb.jpg');
-        disturbTexture.minFilter = THREE.LinearFilter;  
-        disturbTexture.magFilter = THREE.LinearFilter;
-        disturbTexture.generateMipmaps = false;
-        disturbTexture.colorSpace = THREE.SRGBColorSpace;
-
-        spotLight = new THREE.SpotLight(0xffeeee, 3000);
-        spotLight.position.set(2.5, 5, 2.5); // @ts-ignore: exists
-        spotLight.angle = Math.PI / 6; // @ts-ignore: exists
-        spotLight.penumbra = 1; // @ts-ignore: exists
-        spotLight.decay = 1.8; // @ts-ignore: exists
-        spotLight.distance = 0; // @ts-ignore: exists
-        spotLight.map = disturbTexture;
-
-        spotLight.castShadow = true; // @ts-ignore: exists
-        spotLight.shadow.mapSize.width = 512; // @ts-ignore: exists
-        spotLight.shadow.mapSize.height = 512; // @ts-ignore: exists
-        spotLight.shadow.camera.near = 1; // @ts-ignore: exists
-        spotLight.shadow.camera.far = 15; // @ts-ignore: exists
-        spotLight.shadow.focus = 1; 
-        scene.add(spotLight);
-
-        // Add ambient light to help illuminate fog from all angles
-        const ambientLight = new THREE.AmbientLight(0x404045, 60);
-        scene.add(ambientLight);
-
-        // lightHelper = new THREE.SpotLightHelper(spotLight);
-        // scene.add(lightHelper);
-
-        // Ground plane
-        const geometry = new THREE.PlaneGeometry(200, 200);
-        const material = new THREE.MeshLambertMaterial({ color: 0x8a8a8a });
-
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(0, -1, 0);
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.receiveShadow = true;
-        //scene.add(mesh);
-
-        // Conditional model loading based on URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const modelParam = urlParams.get('model');
-        const controlsParam = urlParams.get('controls');
-        
-        // Configure camera controls based on URL parameter
-        if (controlsParam === 'true') {
-            // Enable all mouse interactions for camera control
-            controls.enableRotate = true;
-            controls.enablePan = true;
-            controls.enableZoom = true;
-            controlsEnabled = true;
-        } else {
-            // Disable all mouse interactions (default behavior)
-            controls.enableRotate = false;
-            controls.enablePan = false;
-            controls.enableZoom = false;
-            controlsEnabled = false;
+    async function initCoreScene() {
+        try {
+            loadingText = 'Setting up renderer...';
+            loadingProgress = 10;
+            
+            // Initialize core scene components first
+            await setupRenderer();
+            loadingProgress = 20;
+            
+            loadingText = 'Creating scene...';
+            await setupScene();
+            loadingProgress = 30;
+            
+            loadingText = 'Setting up camera...';
+            await setupCamera();
+            loadingProgress = 40;
+            
+            loadingText = 'Adding lighting...';
+            await setupLighting();
+            loadingProgress = 50;
+            
+            coreSceneLoaded = true;
+            
+            // Start the animation loop early so user sees something
+            renderer.setAnimationLoop(animate);
+            
+            loadingText = 'Loading statue...';
+            await loadModel();
+            loadingProgress = 70;
+            
+            modelLoaded = true;
+            
+            // Load non-essential effects in the background
+            setTimeout(() => loadEffects(), 100);
+            
+        } catch (error) {
+            console.error('Error initializing scene:', error);
+            loadingText = 'Error loading scene';
         }
-        
-        new GLTFLoader().load('/models/angel-opt.glb', function (gltf) {
-            const model = gltf.scene;
+    }
+
+    async function setupRenderer() {
+        return new Promise<void>((resolve) => {
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit pixel ratio for performance
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            (container as HTMLElement).appendChild(renderer.domElement);
+
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 0.035;
             
-            // Scale and position the model
-            model.scale.set(0.5, 0.5, 0.5);
-            model.position.y = -1;
-            
-            // Enable shadows for all meshes in the group
-            model.traverse(function (child) { // @ts-ignore: exists
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
-            
-            scene.add(model);
+            resolve();
         });
+    }
 
-        // Set up post-processing for bloom effects
-        composer = new EffectComposer(renderer);
-        
-        const renderPass = new RenderPass(scene, camera);
-        composer.addPass(renderPass);
-        
-        const bloomPass = new UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            0.045,    // strength
-            45,    // radius  
-            10    // threshold
-        );
-        composer.addPass(bloomPass);
+    async function setupScene() {
+        return new Promise<void>((resolve) => {
+            scene = new THREE.Scene();
+            // Set a simple background color initially
+            scene.background = new THREE.Color(0x0a1929);
+            resolve();
+        });
+    }
 
-        createVolumetricFog();
+    async function setupCamera() {
+        return new Promise<void>((resolve) => {
+            camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 180);
+            
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.minDistance = 2;
+            controls.maxDistance = 10;
+            controls.maxPolarAngle = Math.PI * 0.8;
+            camera.position.set(3.30, -0.45, 4.66);
+            controls.target.set(-0.12, 0.88, 1.16);
+            
+            // Check URL parameters for controls
+            const urlParams = new URLSearchParams(window.location.search);
+            const controlsParam = urlParams.get('controls');
+            
+            if (controlsParam === 'true') {
+                controls.enableRotate = true;
+                controls.enablePan = true;
+                controls.enableZoom = true;
+                controlsEnabled = true;
+            } else {
+                controls.enableRotate = false;
+                controls.enablePan = false;
+                controls.enableZoom = false;
+                controlsEnabled = false;
+            }
+            
+            controls.update();
+            resolve();
+        });
+    }
 
+    async function setupLighting() {
+        return new Promise<void>((resolve) => {
+            const loader = new THREE.TextureLoader();
+            const disturbTexture = loader.load('/textures/disturb.jpg');
+            disturbTexture.minFilter = THREE.LinearFilter;  
+            disturbTexture.magFilter = THREE.LinearFilter;
+            disturbTexture.generateMipmaps = false;
+            disturbTexture.colorSpace = THREE.SRGBColorSpace;
+
+            spotLight = new THREE.SpotLight(0xffeeee, 3000);
+            spotLight.position.set(2.5, 5, 2.5); // @ts-ignore: exists
+            spotLight.angle = Math.PI / 6; // @ts-ignore: exists
+            spotLight.penumbra = 1; // @ts-ignore: exists
+            spotLight.decay = 1.8; // @ts-ignore: exists
+            spotLight.distance = 0; // @ts-ignore: exists
+            spotLight.map = disturbTexture;
+
+            spotLight.castShadow = true; // @ts-ignore: exists
+            spotLight.shadow.mapSize.width = 512; // @ts-ignore: exists
+            spotLight.shadow.mapSize.height = 512; // @ts-ignore: exists
+            spotLight.shadow.camera.near = 1; // @ts-ignore: exists
+            spotLight.shadow.camera.far = 15; // @ts-ignore: exists
+            spotLight.shadow.focus = 1; 
+            scene.add(spotLight);
+
+            const ambientLight = new THREE.AmbientLight(0x404045, 60);
+            scene.add(ambientLight);
+            
+            resolve();
+        });
+    }
+
+    async function loadModel() {
+        return new Promise<void>((resolve) => {
+            new GLTFLoader().load('/models/angel-opt.glb', function (gltf) {
+                const model = gltf.scene;
+                
+                model.scale.set(0.5, 0.5, 0.5);
+                model.position.y = -1;
+                
+                model.traverse(function (child) { // @ts-ignore: exists
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                
+                scene.add(model);
+                resolve();
+            }, 
+            (progress) => {
+                const percentComplete = (progress.loaded / progress.total) * 20; // 20% of total progress
+                loadingProgress = 50 + percentComplete;
+            },
+            (error) => {
+                console.error('Error loading model:', error);
+                resolve(); // Continue even if model fails to load
+            });
+        });
+    }
+
+    async function loadEffects() {
+        try {
+            loadingText = 'Loading visual effects...';
+            loadingProgress = 75;
+            
+            // Load sky and stars
+            await createSkyAndStars();
+            loadingProgress = 85;
+            
+            // Setup post-processing
+            await setupPostProcessing();
+            loadingProgress = 95;
+            
+            // Create volumetric fog last (most expensive)
+            await createVolumetricFog();
+            loadingProgress = 100;
+            
+            effectsLoaded = true;
+            loadingText = 'Complete!';
+            
+            // Hide loading screen after a brief delay
+            setTimeout(() => {
+                loadingProgress = -1; // Hide loading screen
+                setupEventListeners(); // Setup event listeners after everything is loaded
+            }, 500);
+            
+        } catch (error) {
+            console.error('Error loading effects:', error);
+            effectsLoaded = true; // Continue anyway
+            loadingProgress = -1;
+            setupEventListeners();
+        }
+    }
+
+    async function setupPostProcessing() {
+        return new Promise<void>((resolve) => {
+            composer = new EffectComposer(renderer);
+            
+            const renderPass = new RenderPass(scene, camera);
+            composer.addPass(renderPass);
+            
+            const bloomPass = new UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                0.045,    // strength
+                45,    // radius  
+                10    // threshold
+            );
+            composer.addPass(bloomPass);
+            
+            resolve();
+        });
+    }
+
+    // Setup event listeners after core scene is loaded
+    function setupEventListeners() {
         // Detect if device is mobile
         isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
@@ -293,91 +384,100 @@
     }
 
     function createSkyAndStars() {
-        // Create gradient sky sphere
-        const skyGeometry = new THREE.SphereGeometry(90, 32, 16);
-        
-        // Create gradient material
-        const skyMaterial = new THREE.ShaderMaterial({
-            vertexShader: /* glsl */`
-                varying vec3 vWorldPosition;
-                void main() {
-                    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
-                    vWorldPosition = worldPosition.xyz;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            fragmentShader: /* glsl */`
-                varying vec3 vWorldPosition;
-                void main() {
-                    float h = normalize(vWorldPosition).y;
-                    // Create gradient from brighter blue at horizon to dark blue at zenith
-                    vec3 bottomColor = vec3(0.15, 0.25, 0.4); // Brighter blue
-                    vec3 topColor = vec3(0, 0.4, 0.5); // Dark blue instead of black
-                    float gradient = smoothstep(-0.02, 0.5, h);
-                    gl_FragColor = vec4(mix(bottomColor, topColor, gradient), 1.0);
-                }
-            `,
-            side: THREE.BackSide
-        });
-        
-        skyMesh = new THREE.Mesh(skyGeometry, skyMaterial);
-        scene.add(skyMesh);
-        
-        // Create stars
-        const starGeometry = new THREE.BufferGeometry();
-        const starCount = 1024;
-        const positions = new Float32Array(starCount * 3);
-        
-        for (let i = 0; i < starCount; i++) {
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * Math.PI;
-            const radius = 20;
+        return new Promise<void>((resolve) => {
+            // Remove the simple background color
+            scene.background = null;
             
-            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            positions[i * 3 + 1] = radius * Math.cos(phi);
-            positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
-        }
-        
-        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        
-        const starMaterial = new THREE.PointsMaterial({
-            color: 0xaaddff,
-            size: 2,
-            vertexColors: false,
-            transparent: true,
-            opacity: 10,
-            sizeAttenuation: false
+            // Create gradient sky sphere
+            const skyGeometry = new THREE.SphereGeometry(90, 32, 16);
+            
+            // Create gradient material
+            const skyMaterial = new THREE.ShaderMaterial({
+                vertexShader: /* glsl */`
+                    varying vec3 vWorldPosition;
+                    void main() {
+                        vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                        vWorldPosition = worldPosition.xyz;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: /* glsl */`
+                    varying vec3 vWorldPosition;
+                    void main() {
+                        float h = normalize(vWorldPosition).y;
+                        // Create gradient from brighter blue at horizon to dark blue at zenith
+                        vec3 bottomColor = vec3(0.15, 0.25, 0.4); // Brighter blue
+                        vec3 topColor = vec3(0, 0.4, 0.5); // Dark blue instead of black
+                        float gradient = smoothstep(-0.02, 0.5, h);
+                        gl_FragColor = vec4(mix(bottomColor, topColor, gradient), 1.0);
+                    }
+                `,
+                side: THREE.BackSide
+            });
+            
+            skyMesh = new THREE.Mesh(skyGeometry, skyMaterial);
+            scene.add(skyMesh);
+            
+            // Create stars with reduced count for better performance
+            const starGeometry = new THREE.BufferGeometry();
+            const starCount = 512; // Reduced from 1024
+            const positions = new Float32Array(starCount * 3);
+            
+            for (let i = 0; i < starCount; i++) {
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.random() * Math.PI;
+                const radius = 20;
+                
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.cos(phi);
+                positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
+            }
+            
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xaaddff,
+                size: 2,
+                vertexColors: false,
+                transparent: true,
+                opacity: 10,
+                sizeAttenuation: false
+            });
+            
+            stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+            
+            resolve();
         });
-        
-        stars = new THREE.Points(starGeometry, starMaterial);
-        scene.add(stars);
     }
 
     function createVolumetricFog() {
-        const size = 32;
-        const data = new Uint8Array(size * size * size);
+        return new Promise<void>((resolve) => {
+            // Use smaller texture for better performance
+            const size = 24; // Reduced from 32
+            const data = new Uint8Array(size * size * size);
 
-        let i = 0;
-        const scale = 0.8;
-        const perlin = new ImprovedNoise();
-        const vector = new THREE.Vector3();
+            let i = 0;
+            const scale = 0.8;
+            const perlin = new ImprovedNoise();
+            const vector = new THREE.Vector3();
 
-        for (let z = 0; z < size; z++) {
-            for (let y = 0; y < size; y++) {
-                for (let x = 0; x < size; x++) {
-                    const d = 1.0 - vector.set(x, y, z).subScalar(size / 2).divideScalar(size).length();
-                    data[i] = (180 + 180 * perlin.noise(x * scale / 1.5, y * scale, z * scale / 1.5)) * d * d;
-                    i++;
+            for (let z = 0; z < size; z++) {
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const d = 1.0 - vector.set(x, y, z).subScalar(size / 2).divideScalar(size).length();
+                        data[i] = (180 + 180 * perlin.noise(x * scale / 1.5, y * scale, z * scale / 1.5)) * d * d;
+                        i++;
+                    }
                 }
             }
-        }
 
-        const texture = new THREE.Data3DTexture(data, size, size, size);
-        texture.format = THREE.RedFormat;
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        texture.unpackAlignment = 1;
-        texture.needsUpdate = true;
+            const texture = new THREE.Data3DTexture(data, size, size, size);
+            texture.format = THREE.RedFormat;
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.unpackAlignment = 1;
+            texture.needsUpdate = true;
 
         const vertexShader = /* glsl */`
             in vec3 position;
@@ -517,7 +617,7 @@
                 threshold: { value: 0.4 },  
                 opacity: { value: 0.2 },    
                 range: { value: 0.2 },     
-                steps: { value: 8 },       
+                steps: { value: 6 },       // Reduced from 8 for better performance
                 frame: { value: 0 }
             },
             vertexShader,
@@ -531,9 +631,14 @@
         volumetricMesh.scale.set(7.5, 4, 7.5);  // Scale the mesh in world space
         volumetricMesh.position.set(0, -1.45, 0); // Position closer to statue level
         scene.add(volumetricMesh);
+        
+        resolve();
     }
+        )};
 
     function animate() {
+        if (!coreSceneLoaded) return; // Don't animate until core scene is loaded
+        
         const deltaTime = 1 / 60; // Assume 60 FPS for consistent speed
         const baseSpeed = 0.25; // Base rotation speed
         
@@ -545,15 +650,21 @@
         
         accumulatedAngle += baseSpeed * speedMultiplier * deltaTime;
         
-        spotLight.position.x = Math.cos(accumulatedAngle) * 2.5;
-        spotLight.position.z = Math.sin(accumulatedAngle) * 2.5;
+        if (spotLight) {
+            spotLight.position.x = Math.cos(accumulatedAngle) * 2.5;
+            spotLight.position.z = Math.sin(accumulatedAngle) * 2.5;
+        }
 
-        if (volumetricMesh) {
+        // Only update volumetric fog if it's loaded
+        if (volumetricMesh && camera) {
             volumetricMesh.material.uniforms.cameraPos.value.copy(camera.position);
-            volumetricMesh.material.uniforms.spotLightPos.value.copy(spotLight.position);
+            if (spotLight) {
+                volumetricMesh.material.uniforms.spotLightPos.value.copy(spotLight.position);
+            }
             volumetricMesh.material.uniforms.frame.value++;
         }
 
+        // Only animate stars if they're loaded
         if (stars) {
             const time = performance.now() * 0.000005; 
             stars.rotation.x = Math.PI / 6; 
@@ -631,7 +742,12 @@
         
         controls.update();
 
-        composer.render();
+        // Use appropriate renderer based on what's loaded
+        if (composer && effectsLoaded) {
+            composer.render();
+        } else {
+            renderer.render(scene, camera);
+        }
     }
 </script>
 
@@ -639,6 +755,23 @@
 
 <div class="relative w-full h-screen overflow-hidden bg-gray-900">
     <div bind:this={container} class="w-full h-full"></div>
+    
+    <!-- Loading Screen -->
+    {#if loadingProgress >= 0}
+        <div class="absolute inset-0 bg-black bg-opacity-95 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div class="text-center text-white">
+                <div class="mb-4">
+                    <div class="w-64 h-1 bg-black rounded-full overflow-hidden">
+                        <div 
+                            class="h-full bg-white transition-all duration-300 ease-out"
+                            style="width: {loadingProgress}%"
+                        ></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">{loadingProgress}%</p>
+            </div>
+        </div>
+    {/if}
     
     <div class="absolute top-0 left-0 z-30 h-full w-[80%] md:w-[50%] lg:w-[40%] p-6 md:p-8 pointer-events-auto">
         <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
