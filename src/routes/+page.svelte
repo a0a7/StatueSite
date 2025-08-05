@@ -272,9 +272,8 @@
         });
     }
 
-    function handleScroll(event) {
-        if (!scrollContainer) return;
-        
+    function handleScroll() {
+        if (!scrollContainer) return; // @ts-ignore: exists
         const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
         const scrollableHeight = scrollHeight - clientHeight;
         
