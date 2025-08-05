@@ -1,8 +1,8 @@
 <script>
     import { onMount } from 'svelte';
     import * as THREE from 'three';
-    import { PLYLoader } from '$lib/PLYLoader.js';
-    import { OrbitControls } from '$lib/OrbitControls.js';
+    import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
     import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
     import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
     import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -17,8 +17,8 @@
     let accumulatedAngle = 0;
     let mouseX = 0;
     let mouseY = 0;
-    let vignetteX = 0;
-    let vignetteY = 0;
+    let vignetteX = $state(0);
+    let vignetteY = $state(0);
     let baseCameraPosition = { x: 3.30, y: -0.45, z: 4.66 };
     let baseCameraTarget = { x: -0.12, y: 0.88, z: 1.16 };
     let composer;
@@ -56,7 +56,7 @@
         
         // Load HDR environment map
         const rgbeLoader = new RGBELoader();
-        rgbeLoader.load('/src/lib/assets/skies/qwantani_night_1k.hdr', function (texture) {
+        rgbeLoader.load('/skies/qwantani_night_1k.hdr', function (texture) {
             texture.mapping = THREE.EquirectangularReflectionMapping;
             scene.background = texture;
             scene.environment = texture;
@@ -81,7 +81,7 @@
         controls.update();
         // Load disturb texture
         const loader = new THREE.TextureLoader();
-        const disturbTexture = loader.load('/src/lib/assets/textures/disturb.jpg');
+        const disturbTexture = loader.load('/textures/disturb.jpg');
         disturbTexture.minFilter = THREE.LinearFilter;  
         disturbTexture.magFilter = THREE.LinearFilter;
         disturbTexture.generateMipmaps = false;
@@ -143,7 +143,7 @@
         
         if (modelParam === 'lucy') {
             // Load PLY model (Lucy)
-            new PLYLoader().load('/src/lib/assets/models/Lucy100k.ply', function (geometry) {
+            new PLYLoader().load('/models/Lucy100k.ply', function (geometry) {
                 geometry.scale(0.0024, 0.0024, 0.0024);
                 geometry.computeVertexNormals();
 
@@ -158,7 +158,7 @@
             });
         } else {
             // Load GLB model (Angel - default)
-            new GLTFLoader().load('/src/lib/assets/models/angel-opt.glb', function (gltf) {
+            new GLTFLoader().load('/models/angel-opt.glb', function (gltf) {
                 const model = gltf.scene;
                 
                 // Scale and position the model
