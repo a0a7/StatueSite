@@ -81,9 +81,9 @@
     https://github.com/aesefficio/DynamicVillageMod|github,
     https://www.curseforge.com/minecraft/mc-mods/dynamic-village|curseforge,
     https://modrinth.com/mod/dynamic-village|modrinth 
-**Description:** A better way to use Strava
+**Description:** Minecraft add-on - Downloads >5m
 **Tech:** Java
-**Date:** '23-'24
+**Date:** 2023
 
 
 ---
@@ -93,9 +93,9 @@
     https://github.com/aesefficio/BellsAndWhistlesMod|github,
     https://www.curseforge.com/minecraft/mc-mods/bellsandwhistles|curseforge,
     https://modrinth.com/mod/bellsandwhistles|modrinth 
-**Description:** Minecraft add-on - >10m downloads
+**Description:** Minecraft add-on - Downloads >10m
 **Tech:** Java
-**Date:** '23-'24
+**Date:** 2023
 
 ---
 
@@ -104,6 +104,6 @@
     https://github.com/aesefficio/CreateInteriorsMod|github,
     https://www.curseforge.com/minecraft/mc-mods/interiors|curseforge,
     https://modrinth.com/mod/interiors|modrinth 
-**Description:** Minecraft add-on 
+**Description:** Minecraft add-on - Downloads >10m
 **Tech:** Java
-**Date:** '23-'24
+**Date:** 2023

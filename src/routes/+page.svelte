@@ -752,6 +752,7 @@
     
     <div class="absolute top-0 left-0 z-30 h-full w-[80%] md:w-[50%] lg:w-[40%] p-6 md:p-8 pointer-events-auto">
         <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
+            <h2 class="text-white text-xl font-black pb-10 italic font-sefi">selected projects and publications</h2>
             <div class="space-y-8">
                 {#each data.projects as project, projectIndex}
                     {@const titleParts = project.title.split('//')}
@@ -851,6 +852,194 @@
 </div>
 
 <style>
+    /* Font Face Declarations */
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Italic.woff2') format('woff2');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Light.woff2') format('woff2');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-LightItalic.woff2') format('woff2');
+        font-weight: 300;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Medium.woff2') format('woff2');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-MediumItalic.woff2') format('woff2');
+        font-weight: 500;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-SemiBold.woff2') format('woff2');
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-SemiBoldItalic.woff2') format('woff2');
+        font-weight: 600;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Bold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-BoldItalic.woff2') format('woff2');
+        font-weight: 700;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Thin.woff2') format('woff2');
+        font-weight: 100;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-ThinItalic.woff2') format('woff2');
+        font-weight: 100;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-ExtraLight.woff2') format('woff2');
+        font-weight: 200;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-ExtraLightItalic.woff2') format('woff2');
+        font-weight: 200;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    /* Linux Libertine Font Family */
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_R.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RI.otf') format('opentype');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RB.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RBI.otf') format('opentype');
+        font-weight: 700;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RZ.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-variant: small-caps;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RZI.otf') format('opentype');
+        font-weight: 400;
+        font-style: italic;
+        font-variant: small-caps;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertineDisplay';
+        src: url('/font/linux-libertine/LinLibertine_DR.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertineMono';
+        src: url('/font/linux-libertine/LinLibertine_M.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertineInitials';
+        src: url('/font/linux-libertine/LinLibertine_I.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+
     :global(body) {
         margin: 0;
         padding: 0;
