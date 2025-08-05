@@ -2,3 +2,4 @@
 
 @source "../src/**/*.{html,js,ts,svelte}";
 @source not "**/*.{hdr,ply}";
+@plugin "@iconify/tailwind4";
