@@ -23,6 +23,8 @@
     let baseCameraTarget = { x: -0.12, y: 0.88, z: 1.16 };
     let composer;
     let volumetricMesh;
+    let skyMesh;
+    let stars;
     let controlsEnabled = false;
 
     onMount(() => {
@@ -250,17 +252,17 @@
             side: THREE.BackSide
         });
         
-        const skyMesh = new THREE.Mesh(skyGeometry, skyMaterial);
+        skyMesh = new THREE.Mesh(skyGeometry, skyMaterial);
         scene.add(skyMesh);
         
         // Create stars
         const starGeometry = new THREE.BufferGeometry();
-        const starCount = 400;
+        const starCount = 1024;
         const positions = new Float32Array(starCount * 3);
         
         for (let i = 0; i < starCount; i++) {
             const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * Math.PI / 2.35;
+            const phi = Math.random() * Math.PI;
             const radius = 20;
             
             positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
@@ -279,7 +281,7 @@
             sizeAttenuation: false
         });
         
-        const stars = new THREE.Points(starGeometry, starMaterial);
+        stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
     }
 
@@ -486,6 +488,15 @@
             volumetricMesh.material.uniforms.spotLightPos.value.copy(spotLight.position);
             volumetricMesh.material.uniforms.frame.value++;
             volumetricMesh.rotation.y = performance.now() * 0.00005; // Very slow rotation
+        }
+
+        // Rotate skybox to simulate night sky rotation at 30 degrees south
+        if (stars) {
+            // Tilt the rotation axis to simulate 30 degrees south latitude
+            // The sky rotates around the celestial pole, which appears at an angle
+            const time = performance.now() * 0.000005; // Very slow rotation (one full rotation ~13 minutes)
+            stars.rotation.x = Math.PI / 6; // 30 degree tilt for southern latitude
+            stars.rotation.y = time;
         }
 
         // Apply subtle mouse-based camera movement (only when controls are disabled)
