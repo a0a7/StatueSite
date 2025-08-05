@@ -453,33 +453,25 @@
         // Check if we're in the "behind" zone (π/2 to 3π/2 = 90° to 270°)
         const speedMultiplier = (normalizedAngle > Math.PI * 1 && normalizedAngle < Math.PI * 1.55) ? 1.75 : 1.0;
         
-        // Update accumulated angle
         accumulatedAngle += baseSpeed * speedMultiplier * deltaTime;
         
-        // Position spotlight
         spotLight.position.x = Math.cos(accumulatedAngle) * 2.5;
         spotLight.position.z = Math.sin(accumulatedAngle) * 2.5;
 
-        // Update volumetric fog
         if (volumetricMesh) {
             volumetricMesh.material.uniforms.cameraPos.value.copy(camera.position);
             volumetricMesh.material.uniforms.spotLightPos.value.copy(spotLight.position);
             volumetricMesh.material.uniforms.frame.value++;
-            volumetricMesh.rotation.y = performance.now() * 0.00005; // Very slow rotation
         }
 
-        // Rotate skybox to simulate night sky rotation at 30 degrees south
         if (stars) {
-            // Tilt the rotation axis to simulate 30 degrees south latitude
-            // The sky rotates around the celestial pole, which appears at an angle
-            const time = performance.now() * 0.000005; // Very slow rotation (one full rotation ~13 minutes)
-            stars.rotation.x = Math.PI / 6; // 30 degree tilt for southern latitude
+            const time = performance.now() * 0.000005; 
+            stars.rotation.x = Math.PI / 6; 
             stars.rotation.y = time;
         }
 
-        // Apply subtle mouse-based camera movement (only when controls are disabled)
         if (!controlsEnabled) {
-            const parallaxStrength = 0.35; // Adjust this for more/less responsiveness
+            const parallaxStrength = 0.5; 
             camera.position.x = baseCameraPosition.x + mouseX * parallaxStrength;
             camera.position.y = baseCameraPosition.y + mouseY * parallaxStrength * 0.5;
             
@@ -488,8 +480,6 @@
         }
         
         controls.update();
-
-        // lightHelper.update();
 
         composer.render();
     }
@@ -500,7 +490,6 @@
 <div class="relative w-full h-screen overflow-hidden bg-gray-900">
     <div bind:this={container} class="w-full h-full"></div>
     
-    <!-- Dynamic vignette overlay -->
     <div 
         class="vignette-overlay"
         style="--vignette-x: {vignetteX}px; --vignette-y: {vignetteY}px;"
