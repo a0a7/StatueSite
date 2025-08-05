@@ -54,13 +54,8 @@
         // Scene
         scene = new THREE.Scene();
         
-        // Load HDR environment map
-        const rgbeLoader = new RGBELoader();
-        rgbeLoader.load('/skies/qwantani_night_1k.hdr', function (texture) {
-            texture.mapping = THREE.EquirectangularReflectionMapping;
-            scene.background = texture;
-            scene.environment = texture;
-        });
+        // Create starfield and gradient sky
+        createSkyAndStars();
 
         // Camera
         camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 180);
@@ -105,7 +100,7 @@
         scene.add(spotLight);
 
         // Add ambient light to help illuminate fog from all angles
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+        const ambientLight = new THREE.AmbientLight(0x404040, 60);
         scene.add(ambientLight);
 
         // lightHelper = new THREE.SpotLightHelper(spotLight);
@@ -225,6 +220,67 @@
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         composer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function createSkyAndStars() {
+        // Create gradient sky sphere
+        const skyGeometry = new THREE.SphereGeometry(90, 32, 16);
+        
+        // Create gradient material
+        const skyMaterial = new THREE.ShaderMaterial({
+            vertexShader: /* glsl */`
+                varying vec3 vWorldPosition;
+                void main() {
+                    vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: /* glsl */`
+                varying vec3 vWorldPosition;
+                void main() {
+                    float h = normalize(vWorldPosition).y;
+                    // Create gradient from brighter blue at horizon to dark blue at zenith
+                    vec3 bottomColor = vec3(0.15, 0.25, 0.4); // Brighter blue
+                    vec3 topColor = vec3(0, 0.4, 0.5); // Dark blue instead of black
+                    float gradient = smoothstep(-0.02, 0.5, h);
+                    gl_FragColor = vec4(mix(bottomColor, topColor, gradient), 1.0);
+                }
+            `,
+            side: THREE.BackSide
+        });
+        
+        const skyMesh = new THREE.Mesh(skyGeometry, skyMaterial);
+        scene.add(skyMesh);
+        
+        // Create stars
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 400;
+        const positions = new Float32Array(starCount * 3);
+        
+        for (let i = 0; i < starCount; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI / 2.35;
+            const radius = 20;
+            
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.cos(phi);
+            positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta);
+        }
+        
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0xaaddff,
+            size: 2,
+            vertexColors: false,
+            transparent: true,
+            opacity: 10,
+            sizeAttenuation: false
+        });
+        
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scene.add(stars);
     }
 
     function createVolumetricFog() {
