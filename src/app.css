@@ -192,7 +192,7 @@
         font-display: swap;
     }
     
-    /* Browne De Calvin Font */
+    /* Browne De Calvin Font 
     @font-face {
         font-family: 'BrowneDeCalvin';
         src: url('/font/browne-de-calvin-font/BrownedecalvinRegular-MAwJP.otf') format('opentype');
@@ -201,7 +201,6 @@
         font-display: swap;
     }
     
-    /* Luxinus Elegance Font */
     @font-face {
         font-family: 'LuxinusElegance';
         src: url('/font/luxinus-elegance-font/LuxinusEleganceDemo-yYywM.otf') format('opentype');
@@ -210,7 +209,6 @@
         font-display: swap;
     }
     
-    /* Phoenix Ayash Font */
     @font-face {
         font-family: 'PhoenixAyash';
         src: url('/font/phoenix-ayash-font/PhoenixayashRegular-1GYMj.otf') format('opentype');
@@ -227,7 +225,7 @@
         font-display: swap;
     }
     
-    /* Romelano Font Family */
+
     @font-face {
         font-family: 'Romelano';
         src: url('/font/romelano-font/RomelanoPersonalUseRegular-ZV6vB.otf') format('opentype');
@@ -259,7 +257,7 @@
         font-style: italic;
         font-display: swap;
     }
-    
+    */
     /* Anya-Tamy Font */
     @font-face {
         font-family: 'AnyaTamy';
@@ -270,14 +268,14 @@
         font-display: swap;
     }
     
-    /* Romantica Font */
+    /* Romantica Font
     @font-face {
         font-family: 'Romantica';
         src: url('/font/romanica-font/Romanica-Bg4l.ttf') format('truetype');
         font-weight: 400;
         font-style: normal;
         font-display: swap;
-    }
+    }*/
     
     /* Rubik Font Family */
     @font-face {
@@ -360,7 +358,7 @@
         font-display: swap;
     }
 
-
+    
     @font-face {
         font-family: 'AffiliateMastery';
         src: url('/font/AffiliateMasteryRegular.otf') format('opentype');

@@ -750,8 +750,8 @@
         </div>
     {/if}
     
-    <div class="absolute top-0 left-0 z-30 h-full w-[80%] md:w-[50%] lg:w-[40%] p-6 md:p-8 pointer-events-auto">
-        <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
+    <div class="absolute top-0 left-0 z-30 h-full w-full p-6 md:p-8 pointer-events-auto">
+        <div bind:this={scrollContainer} onscroll={handleScroll} class="pr-[20%] md:pr-[50%] lg:pr-[60%] h-full bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
             <!--<h2 class="text-gray-200 text-xl font-black font-['AnyaTamy']">hello, welcome</h2>
             <p class="text-gray-200 pt-4 font-['Rubik'] font-light">My name is Alexander; I'm a developer</p>-->
             <h3 class="text-gray-200 text-xl font-black font-['AnyaTamy']">— &nbsp; find me online &nbsp; —</h3>
