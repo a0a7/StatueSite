@@ -1,17 +1,12 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { marked } from 'marked';
+import projectsMarkdown from '$lib/projects.md?raw';
 
 export async function load() {
-    // Read the markdown file
-    const markdownPath = path.join(process.cwd(), 'src/lib/projects.md');
-    const markdownContent = fs.readFileSync(markdownPath, 'utf-8');
+    // Parse projects from the imported markdown string
+    const projects = parseProjectsFromMarkdown(projectsMarkdown);
     
     // Parse markdown to HTML
-    const htmlContent = marked(markdownContent);
-    
-    // Parse projects from markdown (extract individual projects)
-    const projects = parseProjectsFromMarkdown(markdownContent);
+    const htmlContent = marked(projectsMarkdown);
     
     return {
         projects,
