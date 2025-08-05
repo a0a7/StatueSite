@@ -94,15 +94,15 @@
         spotLight.map = disturbTexture;
 
         spotLight.castShadow = true;
-        spotLight.shadow.mapSize.width = 2048;
-        spotLight.shadow.mapSize.height = 2048;
+        spotLight.shadow.mapSize.width = 512;
+        spotLight.shadow.mapSize.height = 512;
         spotLight.shadow.camera.near = 1;
         spotLight.shadow.camera.far = 15;
         spotLight.shadow.focus = 1;
         scene.add(spotLight);
 
         // Add ambient light to help illuminate fog from all angles
-        const ambientLight = new THREE.AmbientLight(0x404040, 60);
+        const ambientLight = new THREE.AmbientLight(0x404045, 60);
         scene.add(ambientLight);
 
         // lightHelper = new THREE.SpotLightHelper(spotLight);
