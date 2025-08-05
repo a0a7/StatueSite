@@ -751,14 +751,38 @@
     {/if}
     
     <div class="absolute top-0 left-0 z-30 h-full w-[80%] md:w-[50%] lg:w-[40%] p-6 md:p-8 pointer-events-auto">
-        <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
-            <h2 class="text-white text-xl font-black pb-10 italic font-sefi">selected projects and publications</h2>
+        <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
+            <h2 class="text-gray-200 text-xl font-black font-['AnyaTamy']">hello, welcome</h2>
+            <p class="text-gray-200 pt-4 font-['Rubik'] font-light">My name is Alexander; I'm a developer</p>
+            <h3 class="text-gray-200 text-xl font-black font-['AnyaTamy'] pt-10">— &nbsp; find me online &nbsp; —</h3>
+            <div class="flex items-center gap-4 pb-10 pl-[14px] pt-4">
+                <a 
+                    href="https://github.com/a0a7" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="flex items-center gap-2 text-gray-300 hover:text-gray-400 transition-colors duration-200 font-['Rubik'] text-sm"
+                >
+                    <img src="/icons/github-cat.svg" alt="GitHub" class="w-4 h-4 opacity-80" />
+                    <span>github</span>
+                </a>
+                <a 
+                    href="https://t.me/awa0a7" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="flex items-center gap-2 text-gray-300 hover:text-gray-400 transition-colors duration-200 font-['Rubik'] text-sm"
+                >
+                    <img src="/icons/telegram.svg" alt="Telegram" class="w-4 h-4 opacity-80" />
+                    <span>telegram</span>
+                </a>
+            </div>
+            
+            <h2 class="text-gray-200 text-xl font-black pb-10 font-['AnyaTamy']">— &nbsp; selected projects & publications &nbsp; —</h2>
             <div class="space-y-8">
                 {#each data.projects as project, projectIndex}
                     {@const titleParts = project.title.split('//')}
                     {@const displayTitle = titleParts[0]}
                     {@const logoName = titleParts[1]}
-                    <div class="relative pl-5 project-item">
+                    <div class="relative pl-5 project-item ">
                         <div class="transform translate-y-[2px] absolute left-0 top-0 h-full">
                             {#if logoName}
                                 <div class="absolute left-0 top-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
@@ -782,7 +806,7 @@
                         <div class="flex items-start">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center">
-                                    <h2 class="text-sm md:text-base font-bold text-white leading-5 tracking-narrow">
+                                    <h2 class="text-sm md:text-base text-gray-200 leading-5 tracking-tight font-['Rubik'] pr-[2px] font-medium transform scale-y-100">
                                         {#if project.urls && project.urls.length > 0}
                                             <a 
                                                 href={project.urls[0].url} 
@@ -806,7 +830,7 @@
                                                     href={urlData.url} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer" 
-                                                    class="text-white transition-opacity relative inline-block transform translate-y-[1px]"
+                                                    class="text-gray-200 transition-opacity relative inline-block transform -translate-y-[3px]"
                                                     onmouseenter={() => {
                                                         if (index === 0) hoveredFirstIconIndex = projectIndex;
                                                         hoveredIconIndex = `${projectIndex}-${index}`;
@@ -831,8 +855,8 @@
                                         </div>
                                     {/if}
                                 </div>
-                                <p class="text-gray-300 leading-relaxed">{project.description}</p>
-                                <div class="flex items-center gap-3 text-sm text-gray-400">
+                                <p class="text-gray-300 leading-relaxed tracking-tighter font-['Rubik']">{project.description}</p>
+                                <div class="flex items-center gap-3 text-sm tracking-tight text-gray-400 font-['Rubik']">
                                     <span>{project.tech}</span>
                                     <span class="text-xs">◆</span>
                                     <span>{project.date}</span>
@@ -852,193 +876,6 @@
 </div>
 
 <style>
-    /* Font Face Declarations */
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-Regular.woff2') format('woff2');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-Italic.woff2') format('woff2');
-        font-weight: 400;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-Light.woff2') format('woff2');
-        font-weight: 300;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-LightItalic.woff2') format('woff2');
-        font-weight: 300;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-Medium.woff2') format('woff2');
-        font-weight: 500;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-MediumItalic.woff2') format('woff2');
-        font-weight: 500;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-SemiBold.woff2') format('woff2');
-        font-weight: 600;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-SemiBoldItalic.woff2') format('woff2');
-        font-weight: 600;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-Bold.woff2') format('woff2');
-        font-weight: 700;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-BoldItalic.woff2') format('woff2');
-        font-weight: 700;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-Thin.woff2') format('woff2');
-        font-weight: 100;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-ThinItalic.woff2') format('woff2');
-        font-weight: 100;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-ExtraLight.woff2') format('woff2');
-        font-weight: 200;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'DraftingMono';
-        src: url('/font/draftingmono/DraftingMono-ExtraLightItalic.woff2') format('woff2');
-        font-weight: 200;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    /* Linux Libertine Font Family */
-    @font-face {
-        font-family: 'LinuxLibertine';
-        src: url('/font/linux-libertine/LinLibertine_R.otf') format('opentype');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertine';
-        src: url('/font/linux-libertine/LinLibertine_RI.otf') format('opentype');
-        font-weight: 400;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertine';
-        src: url('/font/linux-libertine/LinLibertine_RB.otf') format('opentype');
-        font-weight: 700;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertine';
-        src: url('/font/linux-libertine/LinLibertine_RBI.otf') format('opentype');
-        font-weight: 700;
-        font-style: italic;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertine';
-        src: url('/font/linux-libertine/LinLibertine_RZ.otf') format('opentype');
-        font-weight: 400;
-        font-style: normal;
-        font-variant: small-caps;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertine';
-        src: url('/font/linux-libertine/LinLibertine_RZI.otf') format('opentype');
-        font-weight: 400;
-        font-style: italic;
-        font-variant: small-caps;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertineDisplay';
-        src: url('/font/linux-libertine/LinLibertine_DR.otf') format('opentype');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertineMono';
-        src: url('/font/linux-libertine/LinLibertine_M.otf') format('opentype');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-    }
-    
-    @font-face {
-        font-family: 'LinuxLibertineInitials';
-        src: url('/font/linux-libertine/LinLibertine_I.otf') format('opentype');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-    }
 
     :global(body) {
         margin: 0;

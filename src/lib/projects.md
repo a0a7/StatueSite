@@ -1,6 +1,6 @@
 # projects
 
-## fast-geo-toolkit Package//motiongis
+## fast-geo-toolkit//motiongis
 **URLS:** 
     https://github.com/a0a7/fastgeotoolkit|github,
     https://www.npmjs.com/package/fastgeotoolkit|npm, 

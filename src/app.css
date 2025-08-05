@@ -3,3 +3,388 @@
 @source "../src/**/*.{html,js,ts,svelte}";
 @source not "**/*.{hdr,ply}";
 @plugin "@iconify/tailwind4";
+
+    /* Font Face Declarations */
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Regular.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Italic.woff2') format('woff2');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Light.woff2') format('woff2');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-LightItalic.woff2') format('woff2');
+        font-weight: 300;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Medium.woff2') format('woff2');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-MediumItalic.woff2') format('woff2');
+        font-weight: 500;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-SemiBold.woff2') format('woff2');
+        font-weight: 600;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-SemiBoldItalic.woff2') format('woff2');
+        font-weight: 600;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Bold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-BoldItalic.woff2') format('woff2');
+        font-weight: 700;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-Thin.woff2') format('woff2');
+        font-weight: 100;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-ThinItalic.woff2') format('woff2');
+        font-weight: 100;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-ExtraLight.woff2') format('woff2');
+        font-weight: 200;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'DraftingMono';
+        src: url('/font/draftingmono/DraftingMono-ExtraLightItalic.woff2') format('woff2');
+        font-weight: 200;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    /* Linux Libertine Font Family */
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_R.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RI.otf') format('opentype');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RB.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RBI.otf') format('opentype');
+        font-weight: 700;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RZ.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-variant: small-caps;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertine';
+        src: url('/font/linux-libertine/LinLibertine_RZI.otf') format('opentype');
+        font-weight: 400;
+        font-style: italic;
+        font-variant: small-caps;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertineDisplay';
+        src: url('/font/linux-libertine/LinLibertine_DR.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertineMono';
+        src: url('/font/linux-libertine/LinLibertine_M.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'LinuxLibertineInitials';
+        src: url('/font/linux-libertine/LinLibertine_I.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    /* Browne De Calvin Font */
+    @font-face {
+        font-family: 'BrowneDeCalvin';
+        src: url('/font/browne-de-calvin-font/BrownedecalvinRegular-MAwJP.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    /* Luxinus Elegance Font */
+    @font-face {
+        font-family: 'LuxinusElegance';
+        src: url('/font/luxinus-elegance-font/LuxinusEleganceDemo-yYywM.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    /* Phoenix Ayash Font */
+    @font-face {
+        font-family: 'PhoenixAyash';
+        src: url('/font/phoenix-ayash-font/PhoenixayashRegular-1GYMj.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'PhoenixAyash';
+        src: url('/font/phoenix-ayash-font/PhoenixAyashRegular-RpgGv.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    /* Romelano Font Family */
+    @font-face {
+        font-family: 'Romelano';
+        src: url('/font/romelano-font/RomelanoPersonalUseRegular-ZV6vB.otf') format('opentype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Romelano';
+        src: url('/font/romelano-font/RomelanoItalicPersonalUseItalic-OV6le.otf') format('opentype');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Romelano';
+        src: url('/font/romelano-font/RomelanoBoldPersonalUseBold-ax6Xm.otf') format('opentype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Romelano';
+        src: url('/font/romelano-font/RomelanoBoldItalicPersonalUseBoldItalic-Ea3Wj.otf') format('opentype');
+        font-weight: 700;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    /* Anya-Tamy Font */
+    @font-face {
+        font-family: 'AnyaTamy';
+        src: url('/font/anya-tamy-font/AnyatamyRegular-jEd4l.otf') format('opentype'),
+             url('/font/anya-tamy-font/AnyaTamyRegular-z8Axa.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    /* Romantica Font */
+    @font-face {
+        font-family: 'Romantica';
+        src: url('/font/romanica-font/Romanica-Bg4l.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    /* Rubik Font Family */
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/Rubik-W92V.ttf') format('truetype');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikItalic-3qyX.ttf') format('truetype');
+        font-weight: 400;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikLight-xJXj.ttf') format('truetype');
+        font-weight: 300;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikLightItalic-pe2y.ttf') format('truetype');
+        font-weight: 300;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikMedium-DRPE.ttf') format('truetype');
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikMediumItalic-Al76.ttf') format('truetype');
+        font-weight: 500;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikBold-Om1O.ttf') format('truetype');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikBoldItalic-Z87q.ttf') format('truetype');
+        font-weight: 700;
+        font-style: italic;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikBlack-awoa.ttf') format('truetype');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+    }
+    
+    @font-face {
+        font-family: 'Rubik';
+        src: url('/font/rubik-font/RubikBlackItalic-EBLr.ttf') format('truetype');
+        font-weight: 900;
+        font-style: italic;
+        font-display: swap;
+    }
+
+
+    @font-face {
+        font-family: 'AffiliateMastery';
+        src: url('/font/AffiliateMasteryRegular.otf') format('opentype');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+    }
+
+
+    @font-face {
+        font-family: 'AffiliateMastery';
+        src: url('/font/AffiliateMasteryItalic.otf') format('opentype');
+        font-weight: 900;
+        font-style: italic;
+        font-display: swap;
+    }
+
+
+    @font-face {
+        font-family: 'VarelaRound';
+        src: url('/font/VarelaRound.ttf') format('truetype');
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+    }
+
+    
