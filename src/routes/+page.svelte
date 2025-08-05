@@ -14,9 +14,10 @@
 
     interface Project {
         title: string;
-        status: string;
-        technologies: string;
+        urls: Array<{ url: string; icon: string }>;
         description: string;
+        tech: string;
+        date: string;
     }
 
     interface PageData {
@@ -47,6 +48,11 @@
     let scrollContainer = $state();
     let scrollAngle = $state(0); // Camera rotation angle based on scroll
     let targetScrollAngle = $state(0); // Target angle for smooth interpolation
+    
+    // Hover state tracking for coordinated title/icon effects
+    let hoveredTitleIndex = $state(-1);
+    let hoveredFirstIconIndex = $state(-1);
+    let hoveredIconIndex = $state(null);
     
     // Loading states for progressive rendering
     let coreSceneLoaded = $state(false);
@@ -747,19 +753,68 @@
     <div class="absolute top-0 left-0 z-30 h-full w-[80%] md:w-[50%] lg:w-[40%] p-6 md:p-8 pointer-events-auto">
         <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
             <div class="space-y-8">
-                {#each data.projects as project}
-                    <div class="relative pl-5">
+                {#each data.projects as project, projectIndex}
+                    <div class="relative pl-5 project-item">
                         <div class="transform translate-y-[2px] absolute left-0 top-0 h-full">
                             <div class="absolute left-0 top-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
                             <div class="absolute left-0 bottom-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
                             <div class="absolute left-[-2.5px] top-1/2 transform -translate-y-1/2   w-2 h-2 bg-white opacity-60 rotate-45 rounded-[1px]"></div>
                         </div>
-                        <h2 class="text-sm md:text-base font-bold text-white uppercase leading-5 tracking-narrow">{project.title}</h2>
+                        <div class="flex items-center">
+                            <h2 class="text-sm md:text-base font-bold text-white leading-5 tracking-narrow">
+                                {#if project.urls && project.urls.length > 0}
+                                    <a 
+                                        href={project.urls[0].url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        class="project-title-link transition-opacity duration-75"
+                                        onmouseenter={() => hoveredTitleIndex = projectIndex}
+                                        onmouseleave={() => hoveredTitleIndex = -1}
+                                        style="opacity: {hoveredTitleIndex === projectIndex || hoveredFirstIconIndex === projectIndex ? 0.6 : 1}"
+                                    >
+                                        {project.title}
+                                    </a>
+                                {:else}
+                                    {project.title}
+                                {/if}
+                            </h2>
+                            {#if project.urls && project.urls.length > 0}
+                                <div class="flex items-center">
+                                    {#each project.urls as urlData, index}
+                                        <a 
+                                            href={urlData.url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            class="text-white transition-opacity relative inline-block transform translate-y-[1px]"
+                                            onmouseenter={() => {
+                                                if (index === 0) hoveredFirstIconIndex = projectIndex;
+                                                hoveredIconIndex = `${projectIndex}-${index}`;
+                                            }}
+                                            onmouseleave={() => {
+                                                if (index === 0) hoveredFirstIconIndex = -1;
+                                                hoveredIconIndex = null;
+                                            }}
+                                            style="opacity: {
+                                                index === 0 ? 
+                                                    (hoveredTitleIndex === projectIndex || hoveredFirstIconIndex === projectIndex ? 0.6 : 1) :
+                                                    (hoveredIconIndex === `${projectIndex}-${index}` ? 0.6 : 1)
+                                            }"
+                                        >
+                                            <img src="/icons/{urlData.icon}.svg" alt={urlData.icon} class="w-4 h-4 invert mx-[6px]" />
+                                            <svg class="absolute -top-px right-[3px] w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#261e29" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </a>
+                                    {/each}
+                                </div>
+                            {/if}
+                        </div>
                         <p class="text-gray-300 leading-relaxed">{project.description}</p>
-                        <div class="flex items-center gap-4 text-sm text-gray-400">
-                            <span>{project.technologies}</span>
-                            <span>◆</span>
-                            <span>2025</span>
+                        <div class="flex items-center gap-3 text-sm text-gray-400">
+                            <span>{project.tech}</span>
+                            <span class="text-xs">◆</span>
+                            <span>{project.date}</span>
                         </div>
                     </div>
                 {/each}

@@ -1,6 +1,14 @@
 import { marked } from 'marked';
 import projectsMarkdown from '$lib/projects.md?raw';
 
+interface Project {
+    title: string;
+    urls: Array<{ url: string; icon: string }>;
+    description: string;
+    tech: string;
+    date: string;
+}
+
 export async function load() {
     // Parse projects from the imported markdown string
     const projects = parseProjectsFromMarkdown(projectsMarkdown);
@@ -14,10 +22,11 @@ export async function load() {
     };
 }
 
-function parseProjectsFromMarkdown(markdown: string) {
-    const projects = [];
+function parseProjectsFromMarkdown(markdown: string): Project[] {
+    const projects: Project[] = [];
     const lines = markdown.split('\n');
-    let currentProject = null;
+    let currentProject: Project | null = null;
+    let collectingUrls = false;
     
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
@@ -29,22 +38,60 @@ function parseProjectsFromMarkdown(markdown: string) {
             }
             currentProject = {
                 title: line.replace('## ', ''),
-                status: '',
-                technologies: '',
-                description: ''
+                urls: [],
+                description: '',
+                tech: '',
+                date: ''
             };
+            collectingUrls = false;
         }
-        // Status line
-        else if (line.startsWith('**Status:**') && currentProject) {
-            currentProject.status = line.replace('**Status:**', '').trim();
+        // URLs line
+        else if (line.startsWith('**URLS:**') && currentProject) {
+            collectingUrls = true;
+            // Check if URLs are on the same line
+            const urlsText = line.replace('**URLS:**', '').trim();
+            if (urlsText) {
+                const urlEntries = urlsText.split(',').map(entry => entry.trim());
+                currentProject.urls = urlEntries.map(entry => {
+                    const parts = entry.split('|');
+                    return {
+                        url: parts[0].trim(),
+                        icon: parts[1] ? parts[1].trim() : 'link'
+                    };
+                }).filter(entry => entry.url);
+                collectingUrls = false;
+            }
         }
-        // Technologies line
-        else if (line.startsWith('**Technologies:**') && currentProject) {
-            currentProject.technologies = line.replace('**Technologies:**', '').trim();
+        // Collect URL lines (indented lines after **URLS:**)
+        else if (collectingUrls && currentProject && line && !line.startsWith('**')) {
+            // This is a URL line, parse it
+            const urlEntry = line.replace(/,$/, '').trim(); // Remove trailing comma
+            if (urlEntry) {
+                const parts = urlEntry.split('|');
+                if (parts[0].trim()) {
+                    currentProject.urls.push({
+                        url: parts[0].trim(),
+                        icon: parts[1] ? parts[1].trim() : 'link'
+                    });
+                }
+            }
         }
         // Description line
         else if (line.startsWith('**Description:**') && currentProject) {
             currentProject.description = line.replace('**Description:**', '').trim();
+            collectingUrls = false;
+        }
+        // Tech line
+        else if (line.startsWith('**Tech:**') && currentProject) {
+            const techText = line.replace('**Tech:**', '').trim();
+            // Only take the first technology
+            currentProject.tech = techText.split(',')[0].trim();
+            collectingUrls = false;
+        }
+        // Date line
+        else if (line.startsWith('**Date:**') && currentProject) {
+            currentProject.date = line.replace('**Date:**', '').trim();
+            collectingUrls = false;
         }
     }
     
@@ -52,6 +99,6 @@ function parseProjectsFromMarkdown(markdown: string) {
     if (currentProject) {
         projects.push(currentProject);
     }
-    
+    console.log('Parsed projects:', JSON.stringify(projects, null, 2));
     return projects;
 }
