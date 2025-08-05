@@ -99,6 +99,5 @@ function parseProjectsFromMarkdown(markdown: string): Project[] {
     if (currentProject) {
         projects.push(currentProject);
     }
-    console.log('Parsed projects:', JSON.stringify(projects, null, 2));
     return projects;
 }

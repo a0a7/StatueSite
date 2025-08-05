@@ -754,67 +754,89 @@
         <div bind:this={scrollContainer} onscroll={handleScroll} class="h-full bg-transparent bg-opacity-20 backdrop-blur-sm rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
             <div class="space-y-8">
                 {#each data.projects as project, projectIndex}
+                    {@const titleParts = project.title.split('//')}
+                    {@const displayTitle = titleParts[0]}
+                    {@const logoName = titleParts[1]}
                     <div class="relative pl-5 project-item">
                         <div class="transform translate-y-[2px] absolute left-0 top-0 h-full">
-                            <div class="absolute left-0 top-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
-                            <div class="absolute left-0 bottom-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
-                            <div class="absolute left-[-2.5px] top-1/2 transform -translate-y-1/2   w-2 h-2 bg-white opacity-60 rotate-45 rounded-[1px]"></div>
-                        </div>
-                        <div class="flex items-center">
-                            <h2 class="text-sm md:text-base font-bold text-white leading-5 tracking-narrow">
-                                {#if project.urls && project.urls.length > 0}
-                                    <a 
-                                        href={project.urls[0].url} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer" 
-                                        class="project-title-link transition-opacity duration-75"
-                                        onmouseenter={() => hoveredTitleIndex = projectIndex}
-                                        onmouseleave={() => hoveredTitleIndex = -1}
-                                        style="opacity: {hoveredTitleIndex === projectIndex || hoveredFirstIconIndex === projectIndex ? 0.6 : 1}"
-                                    >
-                                        {project.title}
-                                    </a>
-                                {:else}
-                                    {project.title}
-                                {/if}
-                            </h2>
-                            {#if project.urls && project.urls.length > 0}
-                                <div class="flex items-center">
-                                    {#each project.urls as urlData, index}
-                                        <a 
-                                            href={urlData.url} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer" 
-                                            class="text-white transition-opacity relative inline-block transform translate-y-[1px]"
-                                            onmouseenter={() => {
-                                                if (index === 0) hoveredFirstIconIndex = projectIndex;
-                                                hoveredIconIndex = `${projectIndex}-${index}`;
-                                            }}
-                                            onmouseleave={() => {
-                                                if (index === 0) hoveredFirstIconIndex = -1;
-                                                hoveredIconIndex = null;
-                                            }}
-                                            style="opacity: {
-                                                index === 0 ? 
-                                                    (hoveredTitleIndex === projectIndex || hoveredFirstIconIndex === projectIndex ? 0.6 : 1) :
-                                                    (hoveredIconIndex === `${projectIndex}-${index}` ? 0.6 : 1)
-                                            }"
-                                        >
-                                            <img src="/icons/{urlData.icon}.svg" alt={urlData.icon} class="w-4 h-4 invert mx-[6px]" />
-                                            <svg class="absolute -top-px right-[3px] w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#261e29" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                            </svg>
-                                        </a>
-                                    {/each}
+                            {#if logoName}
+                                <div class="absolute left-0 top-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
+                                <div class="absolute left-0 bottom-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
+                                <!-- Logo replaces diamond -->
+                                <div class="absolute left-[-20px] top-1/2 transform -translate-y-1/2 translate-x-[11px]">
+                                    <img 
+                                        src="/icons/{logoName}.png" 
+                                        alt={logoName} 
+                                        class="w-6 h-6 opacity-70 object-contain invert" 
+                                    />
                                 </div>
+                            {:else}
+                                <!-- Default lines and diamond -->
+                                <div class="absolute left-0 top-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
+                                <div class="absolute left-0 bottom-[5px] h-[calc(50%-22px)] w-0.5 bg-white opacity-60 rounded-[1px]"></div>
+                                <div class="absolute left-[-2.5px] top-1/2 transform -translate-y-1/2   w-2 h-2 bg-white opacity-60 rotate-45 rounded-[1px]"></div>
                             {/if}
                         </div>
-                        <p class="text-gray-300 leading-relaxed">{project.description}</p>
-                        <div class="flex items-center gap-3 text-sm text-gray-400">
-                            <span>{project.tech}</span>
-                            <span class="text-xs">◆</span>
-                            <span>{project.date}</span>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center">
+                                    <h2 class="text-sm md:text-base font-bold text-white leading-5 tracking-narrow">
+                                        {#if project.urls && project.urls.length > 0}
+                                            <a 
+                                                href={project.urls[0].url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                class="project-title-link transition-opacity duration-75"
+                                                onmouseenter={() => hoveredTitleIndex = projectIndex}
+                                                onmouseleave={() => hoveredTitleIndex = -1}
+                                                style="opacity: {hoveredTitleIndex === projectIndex || hoveredFirstIconIndex === projectIndex ? 0.6 : 1}"
+                                            >
+                                                {displayTitle}
+                                            </a>
+                                        {:else}
+                                            {displayTitle}
+                                        {/if}
+                                    </h2>
+                                    {#if project.urls && project.urls.length > 0}
+                                        <div class="flex items-center">
+                                            {#each project.urls as urlData, index}
+                                                <a 
+                                                    href={urlData.url} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    class="text-white transition-opacity relative inline-block transform translate-y-[1px]"
+                                                    onmouseenter={() => {
+                                                        if (index === 0) hoveredFirstIconIndex = projectIndex;
+                                                        hoveredIconIndex = `${projectIndex}-${index}`;
+                                                    }}
+                                                    onmouseleave={() => {
+                                                        if (index === 0) hoveredFirstIconIndex = -1;
+                                                        hoveredIconIndex = null;
+                                                    }}
+                                                    style="opacity: {
+                                                        index === 0 ? 
+                                                            (hoveredTitleIndex === projectIndex || hoveredFirstIconIndex === projectIndex ? 0.6 : 1) :
+                                                            (hoveredIconIndex === `${projectIndex}-${index}` ? 0.6 : 1)
+                                                    }"
+                                                >
+                                                    <img src="/icons/{urlData.icon}.svg" alt={urlData.icon} class="w-4 h-4 invert mx-[6px]" />
+                                                    <svg class="absolute -top-px right-[3px] w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#261e29" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <path d="M7 17L17 7M17 7H8M17 7V16" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                                    </svg>
+                                                </a>
+                                            {/each}
+                                        </div>
+                                    {/if}
+                                </div>
+                                <p class="text-gray-300 leading-relaxed">{project.description}</p>
+                                <div class="flex items-center gap-3 text-sm text-gray-400">
+                                    <span>{project.tech}</span>
+                                    <span class="text-xs">◆</span>
+                                    <span>{project.date}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 {/each}
