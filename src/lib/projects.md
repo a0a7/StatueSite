@@ -22,7 +22,7 @@
 **Date:** 2025
 
 ---
-
+    
 ## Garmin OTP Keychain
 **URLS:** 
     https://github.com/a0a7/GarminHOTP|github,
