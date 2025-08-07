@@ -166,21 +166,21 @@
 
             spotLight = new THREE.SpotLight(0xffeeee, 3000);
             spotLight.position.set(2.5, 5, 2.5); // @ts-ignore: exists
-            spotLight.angle = Math.PI / 6; // @ts-ignore: exists
-            spotLight.penumbra = 1; // @ts-ignore: exists
-            spotLight.decay = 1.8; // @ts-ignore: exists
+            spotLight.angle = Math.PI / 8; // @ts-ignore: exists
+            spotLight.penumbra = 0.05; // @ts-ignore: exists
+            spotLight.decay = 1.5; // @ts-ignore: exists
             spotLight.distance = 0; // @ts-ignore: exists
             spotLight.map = disturbTexture;
 
             spotLight.castShadow = true; // @ts-ignore: exists
-            spotLight.shadow.mapSize.width = 512; // @ts-ignore: exists
-            spotLight.shadow.mapSize.height = 512; // @ts-ignore: exists
+            spotLight.shadow.mapSize.width = 1024; // @ts-ignore: exists
+            spotLight.shadow.mapSize.height = 1024; // @ts-ignore: exists
             spotLight.shadow.camera.near = 1; // @ts-ignore: exists
             spotLight.shadow.camera.far = 15; // @ts-ignore: exists
             spotLight.shadow.focus = 1; 
             scene.add(spotLight);
 
-            const ambientLight = new THREE.AmbientLight(0x404045, 60);
+            const ambientLight = new THREE.AmbientLight(0x404055, 25);
             scene.add(ambientLight);
             
             resolve();
@@ -192,7 +192,7 @@
             new GLTFLoader().load('/models/angel-opt.glb', function (gltf) {
                 const model = gltf.scene;
                 
-                model.scale.set(0.5, 0.5, 0.5);
+                model.scale.set(0.5, 0.51, 0.5);
                 model.position.y = -1;
                 
                 model.traverse(function (child) { // @ts-ignore: exists
@@ -233,7 +233,7 @@
             setTimeout(() => {
                 showSplash = false;
                 setupEventListeners(); // Setup event listeners after everything is loaded
-            }, 300);
+            }, 200);
             
         } catch (error) {
             console.error('Error loading effects:', error);
@@ -242,7 +242,7 @@
             setTimeout(() => {
                 showSplash = false;
                 setupEventListeners();
-            }, 300);
+            }, 200);
         }
     }
 
@@ -255,9 +255,9 @@
             
             const bloomPass = new UnrealBloomPass(
                 new THREE.Vector2(window.innerWidth, window.innerHeight),
-                0.045,    // strength
-                45,    // radius  
-                10    // threshold
+                0.25,    // strength
+                0.1,    // radius
+                7.5    // threshold
             );
             composer.addPass(bloomPass);
             
@@ -604,8 +604,8 @@
                 cameraPos: { value: new THREE.Vector3() },
                 spotLightPos: { value: new THREE.Vector3() }, // Add spotlight position
                 threshold: { value: 0.4 },  
-                opacity: { value: 0.2 },    
-                range: { value: 0.2 },     
+                opacity: { value: 0.8 },    
+                range: { value: 0.15 },     
                 steps: { value: 6 },       // Reduced from 8 for better performance
                 frame: { value: 0 }
             },
