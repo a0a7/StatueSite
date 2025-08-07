@@ -776,7 +776,7 @@
                 </a>
             </div>
             
-            <h2 class="text-gray-200 text-xl font-black pb-10 font-['AnyaTamy']">— &nbsp; selected projects & publications &nbsp; —</h2>
+            <h2 class="text-gray-200 text-xl font-black pb-10 font-['AnyaTamy']">— &nbsp; selected projects &nbsp; —</h2>
             <div class="space-y-8">
                 {#each data.projects as project, projectIndex}
                     {@const titleParts = project.title.split('//')}

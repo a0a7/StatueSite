@@ -6,7 +6,7 @@
     https://www.npmjs.com/package/fastgeotoolkit|npm, 
     https://crates.io/crates/fastgeotoolkit|rust, 
     https://pypi.org/project/fastgeotoolkit/|python
-**Description:** High-performance geospatial analysis framework
+**Description:** Multi-environment geospatial analysis framework
 **Tech:** Rust, Webassembly, Typescript, Python
 **Date:** 2025
 
