@@ -750,8 +750,9 @@
         </div>
     {/if}
     
-    <div class="absolute top-0 left-0 z-30 h-full w-full p-6 md:p-8 pointer-events-auto">
-        <div bind:this={scrollContainer} onscroll={handleScroll} class="pr-auto w-fit max-w-[80%] md:max-w-[50%] lg:max-w-[40%] h-full bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
+    <div  class="absolute top-0 left-0 z-30 h-full w-full p-6 md:p-8 pointer-events-auto">
+        <div bind:this={scrollContainer} onscroll={handleScroll} class="overflow-y-auto custom-scrollbar h-full w-full">
+        <div class="pr-auto w-fit max-w-[80%] md:max-w-[50%] lg:max-w-[40%] bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-visible">
             <div class="w-full flex items-center gap-3 mb-4">
                 <div class="flex-1 h-px bg-white"></div>
                 <h3 class="text-gray-200 text-lg sm:text-xl font-black font-['AnyaTamy'] whitespace-nowrap px-2">find me online</h3>
@@ -874,6 +875,7 @@
                 {/each}
             </div>
         </div>
+    </div>
     </div>
     
     <div 
