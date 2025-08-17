@@ -1,6 +1,6 @@
 # projects
 
-## fast-geo-toolkit//motiongis
+## fastgeotoolkit//motiongis
 **URLS:** 
     https://github.com/a0a7/fastgeotoolkit|github,
     https://www.npmjs.com/package/fastgeotoolkit|npm, 
@@ -47,7 +47,7 @@
 **URLS:** 
     https://github.com/a0a7/effortless.cv|github,
     https://effortless.cv/|web 
-**Description:** a really dreamy résumé builder
+**Description:** clean résumé builder
 **Tech:** Svelte, Typescript, Tailwind 
 **Date:** 2025  
 

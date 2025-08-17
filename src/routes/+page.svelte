@@ -167,20 +167,20 @@
             spotLight = new THREE.SpotLight(0xffeeee, 3000);
             spotLight.position.set(2.5, 5, 2.5); // @ts-ignore: exists
             spotLight.angle = Math.PI / 8; // @ts-ignore: exists
-            spotLight.penumbra = 0.05; // @ts-ignore: exists
-            spotLight.decay = 1.5; // @ts-ignore: exists
+            spotLight.penumbra = 1; // @ts-ignore: exists
+            spotLight.decay = 1.6; // @ts-ignore: exists
             spotLight.distance = 0; // @ts-ignore: exists
             spotLight.map = disturbTexture;
 
             spotLight.castShadow = true; // @ts-ignore: exists
-            spotLight.shadow.mapSize.width = 1024; // @ts-ignore: exists
-            spotLight.shadow.mapSize.height = 1024; // @ts-ignore: exists
-            spotLight.shadow.camera.near = 1; // @ts-ignore: exists
-            spotLight.shadow.camera.far = 15; // @ts-ignore: exists
+            spotLight.shadow.mapSize.width = 512; // @ts-ignore: exists
+            spotLight.shadow.mapSize.height = 512; // @ts-ignore: exists
+            spotLight.shadow.camera.near = 0.1; // @ts-ignore: exists
+            spotLight.shadow.camera.far = 8; // @ts-ignore: exists
             spotLight.shadow.focus = 1; 
             scene.add(spotLight);
 
-            const ambientLight = new THREE.AmbientLight(0x404055, 25);
+            const ambientLight = new THREE.AmbientLight(0x404055, 40);
             scene.add(ambientLight);
             
             resolve();
@@ -255,9 +255,9 @@
             
             const bloomPass = new UnrealBloomPass(
                 new THREE.Vector2(window.innerWidth, window.innerHeight),
-                0.23,    // strength
-                1,    // radius
-                10   // threshold
+                0.2,    // strength
+                0.75,    // radius
+                5  // threshold
             );
             composer.addPass(bloomPass);
             
@@ -751,11 +751,13 @@
     {/if}
     
     <div class="absolute top-0 left-0 z-30 h-full w-full p-6 md:p-8 pointer-events-auto">
-        <div bind:this={scrollContainer} onscroll={handleScroll} class="pr-[20%] md:pr-[50%] lg:pr-[60%] h-full bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
-            <!--<h2 class="text-gray-200 text-xl font-black font-['AnyaTamy']">hello, welcome</h2>
-            <p class="text-gray-200 pt-4 font-['Rubik'] font-light">My name is Alexander; I'm a developer</p>-->
-            <h3 class="text-gray-200 text-xl font-black font-['AnyaTamy']">— &nbsp; find me online &nbsp; —</h3>
-            <div class="flex items-center gap-4 pb-10 pl-[14px] pt-4">
+        <div bind:this={scrollContainer} onscroll={handleScroll} class="pr-auto w-fit max-w-[80%] md:max-w-[50%] lg:max-w-[40%] h-full bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-auto custom-scrollbar">
+            <div class="w-full flex items-center gap-3 mb-4">
+                <div class="flex-1 h-px bg-white"></div>
+                <h3 class="text-gray-200 text-lg sm:text-xl font-black font-['AnyaTamy'] whitespace-nowrap px-2">find me online</h3>
+                <div class="flex-1 h-px bg-white"></div>
+            </div>
+            <div class="flex items-center gap-4 md:gap-10 pb-10 pt-4 justify-center">
                 <a 
                     href="https://github.com/a0a7" 
                     target="_blank" 
@@ -776,7 +778,12 @@
                 </a>
             </div>
             
-            <h2 class="text-gray-200 text-xl font-black pb-10 font-['AnyaTamy']">— &nbsp; selected projects &nbsp; —</h2>
+            <div class="w-full flex items-center gap-3 mb-8">
+                <div class="flex-1 h-px bg-white"></div>
+                <h3 class="text-gray-200 text-lg sm:text-xl font-black font-['AnyaTamy'] whitespace-nowrap px-2">personal projects</h3>
+                <div class="flex-1 h-px bg-white"></div>
+            </div>                
+
             <div class="space-y-8">
                 {#each data.projects as project, projectIndex}
                     {@const titleParts = project.title.split('//')}

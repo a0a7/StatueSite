@@ -38,6 +38,8 @@
 		"@lucide/svelte": "^0.536.0",
 		"@types/marked": "^6.0.0",
 		"marked": "^16.1.2",
-		"three": "^0.179.1"
+		"postprocessing": "^6.37.7",
+		"three": "^0.179.1",
+		"three-good-godrays": "^0.7.1"
 	}
 }

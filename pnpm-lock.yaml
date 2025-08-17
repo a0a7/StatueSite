@@ -17,9 +17,15 @@ importers:
       marked:
         specifier: ^16.1.2
         version: 16.1.2
+      postprocessing:
+        specifier: ^6.37.7
+        version: 6.37.7(three@0.179.1)
       three:
         specifier: ^0.179.1
         version: 0.179.1
+      three-good-godrays:
+        specifier: ^0.7.1
+        version: 0.7.1(postprocessing@6.37.7(three@0.179.1))(three@0.179.1)
     devDependencies:
       '@iconify/json':
         specifier: ^2.2.366
@@ -1204,6 +1210,11 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
+  postprocessing@6.37.7:
+    resolution: {integrity: sha512-3mXzCyhHQvw6cMQKzvHUzQVsy21yC3PZMIeH7KUjx+EVqLWRFPnARh4DEnnFJ+tE08mmIHrrN7UtxVR1Gxbokw==}
+    peerDependencies:
+      three: '>= 0.157.0 < 0.180.0'
+
   quansync@0.2.10:
     resolution: {integrity: sha512-t41VRkMYbkHyCYmOvx/6URnN80H7k4X0lLdBMGsz+maAwrJQYB1djpV6vHrQIBE0WBSGqhtEHrK9U3DWWH8v7A==}
 
@@ -1287,6 +1298,13 @@ packages:
   tar@7.4.3:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
+
+  three-good-godrays@0.7.1:
+    resolution: {integrity: sha512-VeaJlcWozjKPm2FgiHXPDTVmGxYr89arRYJlyLmJvLr+C+2OVm1RPsHcdXyRU4IPT33EQUfSuFBtL/z2lNqXAw==}
+    engines: {node: '>= 0.13.2'}
+    peerDependencies:
+      postprocessing: ^6.33.4
+      three: '>= 0.125.0 <= 0.167.0'
 
   three@0.179.1:
     resolution: {integrity: sha512-5y/elSIQbrvKOISxpwXCR4sQqHtGiOI+MKLc3SsBdDXA2hz3Mdp3X59aUp8DyybMa34aeBwbFTpdoLJaUDEWSw==}
@@ -2315,6 +2333,10 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
+  postprocessing@6.37.7(three@0.179.1):
+    dependencies:
+      three: 0.179.1
+
   quansync@0.2.10: {}
 
   readdirp@4.1.2: {}
@@ -2446,6 +2468,11 @@ snapshots:
       minizlib: 3.0.2
       mkdirp: 3.0.1
       yallist: 5.0.0
+
+  three-good-godrays@0.7.1(postprocessing@6.37.7(three@0.179.1))(three@0.179.1):
+    dependencies:
+      postprocessing: 6.37.7(three@0.179.1)
+      three: 0.179.1
 
   three@0.179.1: {}
 
