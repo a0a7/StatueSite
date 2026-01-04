@@ -180,24 +180,30 @@
             disturbTexture.generateMipmaps = false;
             disturbTexture.colorSpace = THREE.SRGBColorSpace;
 
-            spotLight = new THREE.SpotLight(0xffeeee, 500);
-            spotLight.position.set(2.5, 5, 2.5); // @ts-ignore: exists
-            spotLight.angle = Math.PI / 8; // @ts-ignore: exists
-            spotLight.penumbra = 1; // @ts-ignore: exists
-            spotLight.decay = 1.8; // @ts-ignore: exists
+            spotLight = new THREE.SpotLight(0xffffff, 1000);
+            spotLight.position.set(2.5, 8, 2.5); // @ts-ignore: exists
+            spotLight.angle = Math.PI / 10; // @ts-ignore: exists
+            spotLight.penumbra = 0; // @ts-ignore: exists
+            spotLight.decay = 1.5; // @ts-ignore: exists
             spotLight.distance = 0; // @ts-ignore: exists
             spotLight.map = disturbTexture;
+            
+            // Point the spotlight at the model
+            spotLight.target.position.set(0, 0.65, 0);
+            scene.add(spotLight.target);
 
             spotLight.castShadow = true; // @ts-ignore: exists
             spotLight.shadow.mapSize.width = 512; // @ts-ignore: exists
             spotLight.shadow.mapSize.height = 512; // @ts-ignore: exists
-            spotLight.shadow.camera.near = 0.1; // @ts-ignore: exists
-            spotLight.shadow.camera.far = 8; // @ts-ignore: exists
-            spotLight.shadow.focus = 1; 
+            spotLight.shadow.camera.near = 2; // @ts-ignore: exists
+            spotLight.shadow.camera.far = 10; // @ts-ignore: exists
+            spotLight.shadow.focus = 0.75; 
+            spotLight.shadow.bias = -0.001; // @ts-ignore: exists
             scene.add(spotLight);
 
-            const ambientLight = new THREE.AmbientLight(0x404055, 40);
-            scene.add(ambientLight);
+            // Use HemisphereLight like the example instead of AmbientLight
+            const ambient = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.1);
+            scene.add(ambient);
             
             resolve();
         });
@@ -213,7 +219,7 @@
                 model.rotation.z = Math.PI; // Rotate 180 degrees around Z-axis to face opposite direction
                 
                 // Scale down significantly to fit the scene (2x larger than before)
-                model.scale.set(0.0025, 0.0025, 0.0025);
+                model.scale.set(0.0026, 0.0026, 0.0026);
                 
                 // Position at origin, raised up half a unit
                 model.position.set(0, 0.5, 0);
@@ -222,22 +228,26 @@
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        
+                        // Recompute normals for better lighting
+                        if (child.geometry) {
+                            child.geometry.computeVertexNormals();
+                        }
+                        
+                        // Replace material with MeshPhongMaterial for shininess
+                        if (child.material) {
+                            const oldMaterial = child.material;
+                            child.material = new THREE.MeshPhongMaterial({
+                                color: oldMaterial.color || 0xffffff,
+                                shininess: 400,  // Higher = shinier (default is 30)
+                                specular: 0xeeeeee,  // Specular highlight color (brighter = shinier)
+                            });
+                            child.material.needsUpdate = true;
+                        }
                     }
                 });
                 
                 scene.add(model);
-                
-                // Calculate bounding box for debugging
-                const box = new THREE.Box3().setFromObject(model);
-                const center = box.getCenter(new THREE.Vector3());
-                const size = box.getSize(new THREE.Vector3());
-                
-                console.log('=== MODEL LOADED ===');
-                console.log('Model center:', center);
-                console.log('Model size:', size);
-                console.log('Model rotation:', model.rotation);
-                console.log('Model scale:', model.scale);
-                console.log('===================');
                 
                 resolve();
             }, 
@@ -810,6 +820,10 @@
     <div  class="absolute top-0 left-0 z-30 h-full w-full p-6 md:p-8 pointer-events-auto">
         <div bind:this={scrollContainer} onscroll={handleScroll} class="overflow-y-auto custom-scrollbar h-full w-full">
         <div class="pr-auto w-fit max-w-[80%] md:max-w-[50%] lg:max-w-[40%] bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-visible">
+            <div class="pb-10">
+                <p class="font-['Rubik'] text-sm text-gray-300">highlights: 40m human downloads, 65m human page views</p>
+            </div>
+            
             <div class="w-full flex items-center gap-3 mb-4">
                 <div class="flex-1 h-px bg-white"></div>
                 <h3 class="text-gray-200 text-lg sm:text-xl font-black font-['AnyaTamy'] whitespace-nowrap px-2">find me online</h3>
