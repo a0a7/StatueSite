@@ -37,7 +37,13 @@
     let vignetteY = $state(0);
     let baseCameraPosition = { x: 3.30, y: -0.45, z: 4.66 };
     let baseCameraTarget = { x: -0.12, y: 0.88, z: 1.16 };
+    
+    // Lucy model camera settings (centered on model at origin)
+    let lucyCameraPosition = { x: 0, y: 0.5, z: 3 };
+    let lucyCameraTarget = { x: 0, y: 0, z: 0 };
+    
     let composer: EffectComposer;
+    let afterimageDamp = 1;
     let volumetricMesh: THREE.Mesh<THREE.BoxGeometry, THREE.RawShaderMaterial, THREE.Object3DEventMap>;
     let skyMesh;
     let stars: THREE.Points<THREE.BufferGeometry<THREE.NormalBufferAttributes, THREE.BufferGeometryEventMap>, THREE.PointsMaterial, THREE.Object3DEventMap>;
@@ -48,6 +54,10 @@
     let scrollContainer = $state();
     let scrollAngle = $state(0); // Camera rotation angle based on scroll
     let targetScrollAngle = $state(0); // Target angle for smooth interpolation
+    
+    // WASD movement
+    let keys = { w: false, a: false, s: false, d: false, q: false, e: false, shift: false };
+    let moveSpeed = 0.1;
     
     // Hover state tracking for coordinated title/icon effects
     let hoveredTitleIndex = $state(-1);
@@ -131,8 +141,14 @@
             controls.minDistance = 2;
             controls.maxDistance = 10;
             controls.maxPolarAngle = Math.PI * 0.8;
+            
+            // Old angel camera settings (restored for Lucy)
             camera.position.set(3.30, -0.45, 4.66);
             controls.target.set(-0.12, 0.88, 1.16);
+            
+            // Lucy camera settings (alternative positioning)
+            // camera.position.set(lucyCameraPosition.x, lucyCameraPosition.y, lucyCameraPosition.z);
+            // controls.target.set(lucyCameraTarget.x, lucyCameraTarget.y, lucyCameraTarget.z);
             
             // Check URL parameters for controls
             const urlParams = new URLSearchParams(window.location.search);
@@ -164,11 +180,11 @@
             disturbTexture.generateMipmaps = false;
             disturbTexture.colorSpace = THREE.SRGBColorSpace;
 
-            spotLight = new THREE.SpotLight(0xffeeee, 3000);
+            spotLight = new THREE.SpotLight(0xffeeee, 500);
             spotLight.position.set(2.5, 5, 2.5); // @ts-ignore: exists
             spotLight.angle = Math.PI / 8; // @ts-ignore: exists
             spotLight.penumbra = 1; // @ts-ignore: exists
-            spotLight.decay = 1.6; // @ts-ignore: exists
+            spotLight.decay = 1.8; // @ts-ignore: exists
             spotLight.distance = 0; // @ts-ignore: exists
             spotLight.map = disturbTexture;
 
@@ -189,11 +205,18 @@
 
     async function loadModel() {
         return new Promise<void>((resolve) => {
-            new GLTFLoader().load('/models/angel-opt.glb', function (gltf) {
+            new GLTFLoader().load('/models/lucy.glb', function (gltf) {
                 const model = gltf.scene;
+
+                // Rotate model to stand upright and face the camera
+                model.rotation.x = Math.PI / 2; // Rotate 90 degrees to stand up
+                model.rotation.z = Math.PI; // Rotate 180 degrees around Z-axis to face opposite direction
                 
-                model.scale.set(0.5, 0.51, 0.5);
-                model.position.y = -1;
+                // Scale down significantly to fit the scene (2x larger than before)
+                model.scale.set(0.0025, 0.0025, 0.0025);
+                
+                // Position at origin, raised up half a unit
+                model.position.set(0, 0.5, 0);
                 
                 model.traverse(function (child) { // @ts-ignore: exists
                     if (child.isMesh) {
@@ -203,6 +226,19 @@
                 });
                 
                 scene.add(model);
+                
+                // Calculate bounding box for debugging
+                const box = new THREE.Box3().setFromObject(model);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                
+                console.log('=== MODEL LOADED ===');
+                console.log('Model center:', center);
+                console.log('Model size:', size);
+                console.log('Model rotation:', model.rotation);
+                console.log('Model scale:', model.scale);
+                console.log('===================');
+                
                 resolve();
             }, 
             (progress) => {
@@ -318,6 +354,27 @@
                 console.log(`controls.target.set(${controls.target.x.toFixed(2)}, ${controls.target.y.toFixed(2)}, ${controls.target.z.toFixed(2)});`);
                 console.log('======================');
             }
+            
+            // WASD controls
+            const key = event.key.toLowerCase();
+            if (key === 'w') keys.w = true;
+            if (key === 'a') keys.a = true;
+            if (key === 's') keys.s = true;
+            if (key === 'd') keys.d = true;
+            if (key === 'q') keys.q = true;
+            if (key === 'e') keys.e = true;
+            if (event.shiftKey) keys.shift = true;
+        });
+        
+        window.addEventListener('keyup', (event) => {
+            const key = event.key.toLowerCase();
+            if (key === 'w') keys.w = false;
+            if (key === 'a') keys.a = false;
+            if (key === 's') keys.s = false;
+            if (key === 'd') keys.d = false;
+            if (key === 'q') keys.q = false;
+            if (key === 'e') keys.e = false;
+            if (!event.shiftKey) keys.shift = false;
         });
     }
 
