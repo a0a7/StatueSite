@@ -64,6 +64,9 @@
     let hoveredFirstIconIndex = $state(-1);
     let hoveredIconIndex = $state(null);
     
+    // Email copy state
+    let emailCopied = $state(false);
+    
     // Loading states for progressive rendering
     let coreSceneLoaded = $state(false);
     let modelLoaded = $state(false);
@@ -820,8 +823,8 @@
     <div  class="absolute top-0 left-0 z-30 h-full w-full p-6 md:p-8 pointer-events-auto">
         <div bind:this={scrollContainer} onscroll={handleScroll} class="overflow-y-auto custom-scrollbar h-full w-full">
         <div class="pr-auto w-fit max-w-[80%] md:max-w-[50%] lg:max-w-[40%] bg-transparent bg-opacity-100 text-shadow-lg text-shadow-black  rounded-lg p-6 md:p-8 overflow-y-visible">
-            <div class="pb-10">
-                <p class="font-['Rubik'] text-sm text-gray-300">highlights: 40m human downloads, 65m human page views</p>
+            <div class="pb-4">
+                    <p class="font-['Rubik'] text-sm text-gray-300 font-bold">highlights: 40m software downloads,<br>65m human page views. xi jingping's<br>daughter used one of my sites</p>
             </div>
             
             <div class="w-full flex items-center gap-3 mb-4">
@@ -829,7 +832,7 @@
                 <h3 class="text-gray-200 text-lg sm:text-xl font-black font-['AnyaTamy'] whitespace-nowrap px-2">find me online</h3>
                 <div class="flex-1 h-px bg-white"></div>
             </div>
-            <div class="flex items-center gap-4 md:gap-10 pb-10 pt-4 justify-center">
+            <div class="flex items-center gap-4 md:gap-10 pb-2 pt-3 justify-center">
                 <a 
                     href="https://github.com/a0a7" 
                     target="_blank" 
@@ -848,6 +851,21 @@
                     <img src="/icons/telegram.svg" alt="Telegram" class="w-4 h-4 opacity-80" />
                     <span>telegram</span>
                 </a>
+            </div>
+            <div class="flex items-center gap-4 md:gap-10 pb-8 pt-4 justify-center">
+                <button 
+                    onclick={() => {
+                        navigator.clipboard.writeText('a0@ieee.org');
+                        emailCopied = true;
+                        setTimeout(() => emailCopied = false, 800);
+                    }}
+                    class="flex items-center gap-2 text-gray-300 hover:text-gray-400 transition-colors duration-200 font-['Rubik'] text-sm cursor-pointer bg-transparent border-none relative"
+                >
+                    <span>a0@ieee.org</span>
+                    {#if emailCopied}
+                        <span class="absolute font-['Rubik'] -right-14 text-xs text-gray-400" transition:fade={{ duration: 50 }}>copied!</span>
+                    {/if}
+                </button>        
             </div>
             
             <div class="w-full flex items-center gap-3 mb-8">
